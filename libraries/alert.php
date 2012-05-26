@@ -44,6 +44,6 @@ class Alert
 	
 	protected static function build($content, $color)
 	{
-		return '<div class="msg '.$color.'">'.$content.'</div>';
+		return '<div class="alert '.$color.'">'.$content.'</div>';
 	}
 }

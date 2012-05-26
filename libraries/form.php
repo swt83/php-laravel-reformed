@@ -74,7 +74,7 @@ class FormModel
 		}
 	}
 	
-	public static function save_input($fields = null, $input = null)
+	public static function remember($fields = null, $input = null)
 	{
 		// check error
 		if (!is_array($fields) and !is_null($fields))
@@ -117,7 +117,7 @@ class FormModel
 		static::serialize();
 	}
 	
-	public static function forget_input()
+	public static function forget()
 	{
 		Session::forget(get_called_class());
 	}
