@@ -1,7 +1,7 @@
 <?php
 
 /**
- * A simple class for handling form alerts.
+ * A simple class for handling alerts w/ forms.
  *
  * @package    Alert
  * @author     Scott Travis <scott.w.travis@gmail.com>
@@ -11,11 +11,17 @@
 
 class Alert
 {
+	/**
+	 * Set alert box value.
+	 */
 	public static function set($string, $color)
 	{
 		Session::flash('alert', static::build($string, $color));
 	}
 	
+	/**
+	 * Get alert box value.
+	 */
 	public static function get()
 	{
 		// load errors
@@ -24,7 +30,15 @@ class Alert
 		// if errors...
 		if ($errors)
 		{
-	    	return static::build('<p>Form Errors:</p>'.HTML::ul($errors), 'red');
+			// build friendly array
+			$clean_errors = array();
+			foreach ($errors->messages as $error)
+			{
+				$clean_errors[] = $error[0];
+			}
+			
+			// return
+	    	return static::build('<p>Form Errors:</p>'.HTML::ul($clean_errors), 'red');
     	}
     	
     	// if not errors, but existing alert...
@@ -42,6 +56,9 @@ class Alert
     	}
 	}
 	
+	/**
+	 * Helper function.
+	 */
 	protected static function build($content, $color)
 	{
 		return '<div class="alert '.$color.'">'.$content.'</div>';
