@@ -88,7 +88,7 @@ class FormModel
 	}
 	
 	/**
-	 * Remember latest input in data array (possibly persistant).
+	 * Store latest input in data array (possibly persistant).
 	 */
 	protected static function remember()
 	{
@@ -210,12 +210,10 @@ class FormModel
 	 */
 	public static function populate($field, $default = null)
 	{
-		// -------
-		// The question of when to pull is tricky.  All data is remembered
+		// The question of when to pull is tricky.  All data is stored
 		// after the post, so the need to pull only applies to pre-post
-		// situations.  We'll assume that either a fill() was used to
-		// build the data array, or a pull is necessary.
-		// -------
+		// situations.  In a pre-post situation, assume either a fill()
+		// was used to build the data array or a pull is necessary.
 		
 		// pull
 		if (empty(static::$data) and static::$remember) static::pull();
