@@ -128,7 +128,7 @@ class FormModel
 		// if session...
 		if (Session::has(get_called_class()))
 		{
-			// pull remote data array
+			// get remote data array
 			static::$data = unserialize(Session::get(get_called_class()));
 		}
 	}
@@ -210,6 +210,16 @@ class FormModel
 	 */
 	public static function populate($field, $default = null)
 	{
+		// -------
+		// The question of when to pull is tricky.  All data is remembered
+		// after the post, so the need to pull only applies to pre-post
+		// situations.  We'll assume that either a fill() was used to
+		// build the data array, or a pull is necessary.
+		// -------
+		
+		// pull
+		if (empty(static::$data) and static::$remember) static::pull();
+	
 		// return
 		return Input::old($field, static::get($field, $default));
 	}
@@ -220,7 +230,7 @@ class FormModel
 	 * @return	array
 	 */
 	public static function all()
-	{
+	{	
 		// return
 		return static::$data;
 	}
