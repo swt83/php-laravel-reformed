@@ -15,21 +15,15 @@ class FormModel
 	public static $rules = array();
 	public static $validation = false;
 
-	public static function is_valid($fields = null, $input = null)
+	public static function is_valid($fields = null)
 	{
 		// check error
 		if (!is_array($fields) and !is_null($fields))
 		{
 			return false;
 		}
-
-		// get input
-		if (is_null($input))
-		{
-			$input = Input::all();
-		}
-
-		// get rules
+		
+		// set rules
 		if (is_array($fields))
 		{
 			$rules = array();
@@ -80,31 +74,66 @@ class FormModel
 	}
 	
 	/**
-	 * Save data array.
+	 * Fill remote data array.
 	 */
-	public static function remember()
+	public static function remember($fields = null)
 	{
-		// remember data
+		// catch error
+		if (!is_array($fields) and !is_null($fields))
+		{
+			return false;
+		}
+
+		// set fields
+		if (is_null($fields))
+		{
+			$fields = array_keys(Input::all());
+		}
+
+		// pull
+		if (empty(static::$data)) static::pull();
+
+		// spin fields...
+		foreach ($fields as $field)
+		{
+			if (Input::has($field))
+			{
+				static::$data[$field] = Input::get($field);
+			}
+			else
+			{
+				static::$data[$field] = '';
+			}
+		}
+	
+		// push
 		static::push();
 	}
 	
 	/**
-	 * Unsave data array.
+	 * Unsave remote data array.
 	 */
 	public static function forget()
-	{
-		// forget data
+	{	
+		// forget remote data
 		Session::forget(get_called_class());
 	}
 	
 	/**
-	 * Fill data fields.
+	 * Fill data fields (only works before a post, not after).
 	 */
-	public static function fill($array)
+	public static function fill($input)
 	{
-		foreach ($array as $field => $value)
+		// check error
+		if (!is_array($input))
 		{
-			static::$data[$field] = $value;
+			return false;
+		}
+		
+		// spin input...
+		foreach ($input as $field => $value)
+		{
+			static::$data[$field] = $input[$field];
 		}
 	}
 	
@@ -122,6 +151,9 @@ class FormModel
 	 */
 	public static function has($field)
 	{
+		// pull
+		if (empty(static::$data)) static::pull();
+		
 		// return has field
 		return isset(static::$data[$field]) and !empty(static::$data[$field]);
 	}
@@ -131,6 +163,9 @@ class FormModel
 	 */
 	public static function get($field, $default = null)
 	{
+		// pull
+		if (empty(static::$data)) static::pull();
+	
 		// return value
 		return static::has($field) ? static::$data[$field] : $default;
 	}
@@ -140,6 +175,9 @@ class FormModel
 	 */
 	public static function all()
 	{
+		// pull
+		if (empty(static::$data)) static::pull();
+		
 		// return data array
 		return static::$data;
 	}
