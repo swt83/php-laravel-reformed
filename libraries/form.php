@@ -13,8 +13,15 @@ class FormModel
 {
 	public static $data = array();
 	public static $rules = array();
-	public static $validation = false;
+	public static $remember = false; // persistant data mode
+	public static $validation = null;
 
+	/**
+	 * Validates form, sets all input to data array.
+	 *
+	 * @param	array	$fields
+	 * @return	bool
+	 */
 	public static function is_valid($fields = null)
 	{
 		// check error
@@ -23,11 +30,11 @@ class FormModel
 			return false;
 		}
 		
-		// set rules
+		// if fields...
 		if (is_array($fields))
 		{
+			// filter rules...
 			$rules = array();
-
 			foreach ($fields as $field)
 			{
 				if (array_key_exists($field, static::$rules))
@@ -38,27 +45,78 @@ class FormModel
 		}
 		else
 		{
+			// use all rules
 			$rules = static::$rules;
 		}
-
-		// catch error
-		if (empty($rules))
+	
+		// if rules...
+		if (!empty($rules))
 		{
+			// validate
+			static::$validation = Validator::make(Input::all(), $rules);
+			
+			// if passes...
+			if (static::$validation->passes())
+			{
+				// remember
+				static::remember();
+				
+				// return
+				return true;
+			}
+			else
+			{
+				// return
+				return false;
+			}
+		}
+		else
+		{
+			// return
 			return true;
 		}
-	
-		// validate
-		static::$validation = Validator::make(Input::all(), static::$rules);
+	}
 		
-		// return
-		return static::$validation->passes();
+	/**
+	 * Get validation object.
+	 *
+	 * @return	object
+	 */
+	public static function validation()
+	{
+		return static::$validation;
 	}
 	
 	/**
-	 * Serialize data and store in session.
+	 * Remember latest input in data array (possibly persistant).
+	 */
+	protected static function remember()
+	{
+		// if remember...
+		if (static::$remember)
+		{
+			// pull
+			static::pull();
+			
+			// update
+			static::fill(Input::all());
+			
+			// push
+			static::push();
+		}
+		else
+		{
+			// update
+			static::fill(Input::all());			
+		}
+	}
+	
+	/**
+	 * Serialize data array and store in session.
 	 */
 	protected static function push()
 	{
+		// set remote data array
 		Session::put(get_called_class(), serialize(static::$data));
 	}
 	
@@ -67,78 +125,50 @@ class FormModel
 	 */
 	protected static function pull()
 	{
+		// if session...
 		if (Session::has(get_called_class()))
 		{
+			// pull remote data array
 			static::$data = unserialize(Session::get(get_called_class()));
 		}
 	}
 	
 	/**
-	 * Fill remote data array.
-	 */
-	public static function remember($fields = null)
-	{
-		// catch error
-		if (!is_array($fields) and !is_null($fields))
-		{
-			return false;
-		}
-
-		// set fields
-		if (is_null($fields))
-		{
-			$fields = array_keys(Input::all());
-		}
-
-		// pull
-		if (empty(static::$data)) static::pull();
-
-		// spin fields...
-		foreach ($fields as $field)
-		{
-			if (Input::has($field))
-			{
-				static::$data[$field] = Input::get($field);
-			}
-			else
-			{
-				static::$data[$field] = '';
-			}
-		}
-	
-		// push
-		static::push();
-	}
-	
-	/**
-	 * Unsave remote data array.
+	 * Clear all fields from data array.
 	 */
 	public static function forget()
 	{	
 		// forget remote data
 		Session::forget(get_called_class());
+		
+		// forget local data
+		static::$data = array();
 	}
 	
 	/**
-	 * Fill data fields (only works before a post, not after).
+	 * Fill data array w/ values.
+	 *
+	 * @param	array	$input
 	 */
 	public static function fill($input)
 	{
-		// check error
-		if (!is_array($input))
+		// if array...
+		if (is_array($input))
 		{
-			return false;
-		}
-		
-		// spin input...
-		foreach ($input as $field => $value)
-		{
-			static::$data[$field] = $input[$field];
+			// spin input...
+			foreach ($input as $field => $value)
+			{
+				// set field value
+				static::$data[$field] = $input[$field];
+			}
 		}
 	}
 	
 	/**
-	 * Set data field.
+	 * Set field value in data array.
+	 *
+	 * @param	string	$field
+	 * @param	string	$value
 	 */
 	public static function set($field, $value)
 	{
@@ -147,88 +177,75 @@ class FormModel
 	}
 	
 	/**
-	 * Check for data field.
+	 * Check if field exists in data array.
+	 *
+	 * @param	string	$field
+	 * @return	bool
 	 */
 	public static function has($field)
 	{
-		// pull
-		if (empty(static::$data)) static::pull();
-		
-		// return has field
+		// return
 		return isset(static::$data[$field]) and !empty(static::$data[$field]);
 	}
 	
 	/**
-	 * Get data field.
+	 * Get field from data array.
+	 *
+	 * @param	string	$field
+	 * @param	string	$default
+	 * @return	string
 	 */
 	public static function get($field, $default = null)
 	{
-		// pull
-		if (empty(static::$data)) static::pull();
-	
-		// return value
+		// return
 		return static::has($field) ? static::$data[$field] : $default;
 	}
 	
 	/**
-	 * Get all data fields.
-	 */
-	public static function all()
-	{
-		// pull
-		if (empty(static::$data)) static::pull();
-		
-		// return data array
-		return static::$data;
-	}
-	
-	/**
-	 * Get best field value.
+	 * Get field from old input or data array.
+	 *
+	 * @param	string	$field
+	 * @param	string	$default
+	 * @return	string
 	 */
 	public static function populate($field, $default = null)
 	{
-		// return best value
+		// return
 		return Input::old($field, static::get($field, $default));
 	}
 	
 	/**
-	 * Get validation object.
+	 * Get all fields from data array.
+	 *
+	 * @return	array
 	 */
-	public static function validation()
+	public static function all()
 	{
-		return static::$validation;
+		// return
+		return static::$data;
 	}
 	
 	/**
-	 * Get errors array.
-	 */
-	public static function errors()
-	{
-		$errors = Session::get('errors');
-		
-		if ($errors)
-		{
-			return $errors->all();
-		}
-		else
-		{
-			return false;
-		}
-	}
-	
-	/**
-	 * Get field error.
+	 * Get field error from validation object.
+	 *
+	 * @param	string	$field
+	 * @param	string	$default
+	 * @return	string
 	 */
 	public static function error($field, $default = null)
 	{
+		// load session
 		$errors = Session::get('errors');
 		
+		// if errors...
 		if ($errors)
 		{
+			// return
 			return $errors->has($field) ? $errors->first($field) : $default;
 		}
 		else
 		{
+			// return
 			return $default;
 		}
 	}
