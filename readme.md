@@ -18,7 +18,7 @@ The bundle contains two classes, a ``FormModel`` class for building forms and an
 
 ## Example ##
 
-When working w/ forms, I always have three parts:  the ``Route`` or ``Controller``, the ``View``, and the ``FormModel``.  The following is an example of how I might make a simple registration form.
+When working w/ forms, I always have three parts:  the ``Route`` or ``Controller``, the ``View``, and the ``FormModel``.  The following is an example of how I might make a simple registration form:
 
 ### The Controller ###
 
@@ -111,9 +111,9 @@ There are several tricky aspects to working with forms.  Building out this form 
 
 ### How the FormModel Stores Data ###
 
-Before a post, the model has no data at all.  So unless you use a ``fill()`` method to add data, your ``has()``, ``get()``, and ``all()`` methods won't do anything useful.  Generally you'll be working in a controller or a view and the only methods you'll use are ``fill()``, ``populate()``, and ``error()``.
+Before a post ("pre-post context"), the model has no data at all.  So unless you use a ``fill()`` method to add data, your ``has()``, ``get()``, and ``all()`` methods won't do anything useful.  Generally you'll be working in a controller or a view and the only methods you'll use are ``fill()``, ``populate()``, and ``error()``.
 
-After a post, the model will immediately store all input in the ``static::$data`` array.  You can use any method at this point to get access to your data.  Generally you'll be working in the model itself under a ``run()`` method (or other method name of your choosing), processing the form and returning a resulting redirect. 
+After a post ("post-processing context"), the model will immediately store all input in the ``static::$data`` array.  You can use any method at this point to get access to your data.  Generally you'll be working in the model itself under a ``run()`` method (or other method name of your choosing), processing the form and returning a resulting redirect. 
 
 ### Persistant Data Over Multi-Page Forms ###
 

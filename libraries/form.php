@@ -136,8 +136,6 @@ class FormModel
 	
 	/**
 	 * Serialize data array and store in session.
-	 *
-	 * @param	string	$method
 	 */
 	protected static function push()
 	{
@@ -206,7 +204,7 @@ class FormModel
 	}
 	
 	/**
-	 * Check if field exists in data array.
+	 * Check if field value exists in data array.
 	 *
 	 * @param	string	$field
 	 * @return	bool
@@ -218,7 +216,7 @@ class FormModel
 	}
 	
 	/**
-	 * Get field from data array.
+	 * Get field value from data array.
 	 *
 	 * @param	string	$field
 	 * @param	string	$default
@@ -231,7 +229,7 @@ class FormModel
 	}
 	
 	/**
-	 * Get field from old input or data array.
+	 * Get field value from old input or data array.
 	 *
 	 * @param	string	$field
 	 * @param	string	$default
@@ -241,7 +239,7 @@ class FormModel
 	{
 		// The question of when to pull is tricky.  All data is stored
 		// after the post, so the need to pull only applies to pre-post
-		// situations.  In a pre-post situation, assume either a fill()
+		// situations.  In a pre-post context, assume either a fill()
 		// was used to build the data array or a pull is necessary.
 		
 		// pull
@@ -271,6 +269,9 @@ class FormModel
 	 */
 	public static function error($field, $default = null)
 	{
+		// Because this is based on a flashed validation object,
+		// this method is only useful in a pre-post context.
+	
 		// load session
 		$errors = Session::get('errors');
 		
