@@ -1,6 +1,6 @@
 # FormModel for LaravelPHP #
 
-This is a extendable form model based around Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  I have found Shawn's form model concept to be extremely helpful and it has completely changed how I do forms.  Every form has a model now.
+This is a extendable form model based around Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  I have found Shawn's form model concept to be extremely helpful and has completely changed how I do forms.  Every form has a model now.
 
 ## Install ##
 
