@@ -1,10 +1,6 @@
 # FormModel for LaravelPHP #
 
-This is a extendable form model based around Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  Because forms are so essential to my work, I wanted my own version to modify as needed.  The more I've worked w/ it, the more it has varied from Shawn's original.
-
-### The Goal ###
-
-Make forms easier to work w/ by breaking them into smaller and more manageable parts.  I have found Shawn's form model concept to be extremely helpful and it has completely changed how I do forms.  Every form has a model now.
+This is a extendable form model based around Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  I have found Shawn's form model concept to be extremely helpful and it has completely changed how I do forms.  Every form has a model now.
 
 ## Install ##
 
@@ -18,7 +14,7 @@ The bundle contains two classes, a ``FormModel`` class for building forms and an
 
 ## Example ##
 
-When working w/ forms, I always have three parts:  the ``Route`` or ``Controller``, the ``View``, and the ``FormModel``.  The following is an example of how I might make a simple registration form:
+When working w/ forms, I always have three parts:  the ``Route`` or ``Controller``, the ``View``, and the ``FormModel``.  The following is a basic example of how I might make a simple registration form:
 
 ### The Controller ###
 
