@@ -4,7 +4,7 @@ This is a extendable form model based around Shawn McCool's [Form Base Model](ht
 
 ### The Goal ###
 
-Make forms easier to work w/ by breaking them into smaller and more manageable parts.  I have found Shawn's form model concept to do that quite nicely.
+Make forms easier to work w/ by breaking them into smaller and more manageable parts.  I have found Shawn's form model concept to be extremely helpful and it has completely changed how I do forms.  Every form has a model now.
 
 ## Install ##
 
