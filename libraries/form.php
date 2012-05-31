@@ -76,38 +76,27 @@ class FormModel
 			return true;
 		}
 	}
-		
+	
 	/**
-	 * Get validation object.
-	 *
-	 * @return	object
+	 * Serialize data array and store in session.
 	 */
-	public static function validation()
+	protected static function push()
 	{
-		return static::$validation;
+		// set remote data array
+		Session::put(get_called_class(), serialize(static::$data));
 	}
 	
 	/**
-	 * Plant a cookie prior to post, to see if cookies are disabled.
+	 * Unserialize session and populate data array.
 	 */
-	public static function plant_cookie()
+	protected static function pull()
 	{
-		// In rare cases, people disable cookies which prevents you
-		// from being able to store persistant data.  We can detect
-		// these people by planting a cookie before the post and
-		// then attempting to harvest it after.  Handle as needed.
-	
-		// plant test cookie
-		Session::put(md5(get_called_class()), true);
-		
-	}
-	
-	/**
-	 * Harvest a cookie after a post, to see if cookies are disabled.
-	 */
-	public static function harvest_cookie()
-	{
-		return Session::get(md5(get_called_class()), false);
+		// if session...
+		if (Session::has(get_called_class()))
+		{
+			// get remote data array
+			static::$data = unserialize(Session::get(get_called_class()));
+		}
 	}
 	
 	/**
@@ -131,28 +120,6 @@ class FormModel
 		{
 			// update
 			static::fill(Input::all());			
-		}
-	}
-	
-	/**
-	 * Serialize data array and store in session.
-	 */
-	protected static function push()
-	{
-		// set remote data array
-		Session::put(get_called_class(), serialize(static::$data));
-	}
-	
-	/**
-	 * Unserialize session and populate data array.
-	 */
-	protected static function pull()
-	{
-		// if session...
-		if (Session::has(get_called_class()))
-		{
-			// get remote data array
-			static::$data = unserialize(Session::get(get_called_class()));
 		}
 	}
 	
@@ -229,6 +196,17 @@ class FormModel
 	}
 	
 	/**
+	 * Get all fields from data array.
+	 *
+	 * @return	array
+	 */
+	public static function all()
+	{	
+		// return
+		return static::$data;
+	}
+	
+	/**
 	 * Get field value from old input or data array.
 	 *
 	 * @param	string	$field
@@ -247,17 +225,6 @@ class FormModel
 	
 		// return
 		return Input::old($field, static::get($field, $default));
-	}
-	
-	/**
-	 * Get all fields from data array.
-	 *
-	 * @return	array
-	 */
-	public static function all()
-	{	
-		// return
-		return static::$data;
 	}
 	
 	/**
@@ -286,5 +253,28 @@ class FormModel
 			// return
 			return $default;
 		}
+	}
+	
+	/**
+	 * Plant a cookie prior to post, to see if cookies are disabled.
+	 */
+	public static function plant_cookie()
+	{
+		// In rare cases, people disable cookies which prevents you
+		// from being able to store persistant data.  We can detect
+		// these people by planting a cookie before the post and
+		// then attempting to harvest it after.  Handle as needed.
+	
+		// plant test cookie
+		Session::put(md5(get_called_class()), true);
+		
+	}
+	
+	/**
+	 * Harvest a cookie after a post, to see if cookies are disabled.
+	 */
+	public static function harvest_cookie()
+	{
+		return Session::get(md5(get_called_class()), false);
 	}
 }
