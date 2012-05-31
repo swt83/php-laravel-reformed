@@ -88,6 +88,29 @@ class FormModel
 	}
 	
 	/**
+	 * Plant a cookie prior to post, to see if cookies are disabled.
+	 */
+	public static function plant_cookie()
+	{
+		// In rare cases, people disable cookies which prevents you
+		// from being able to store persistant data.  We can detect
+		// these people by planting a cookie before the post and
+		// then attempting to harvest it after.  Handle as needed.
+	
+		// plant test cookie
+		Session::put(md5(get_called_class()), true);
+		
+	}
+	
+	/**
+	 * Harvest a cookie after a post, to see if cookies are disabled.
+	 */
+	public static function harvest_cookie()
+	{
+		return Session::get(md5(get_called_class()), false);
+	}
+	
+	/**
 	 * Store latest input in data array (possibly persistant).
 	 */
 	protected static function remember()
@@ -113,6 +136,8 @@ class FormModel
 	
 	/**
 	 * Serialize data array and store in session.
+	 *
+	 * @param	string	$method
 	 */
 	protected static function push()
 	{
@@ -134,15 +159,19 @@ class FormModel
 	}
 	
 	/**
-	 * Clear all fields from data array.
+	 * Forget persistant data array.
 	 */
 	public static function forget()
 	{	
-		// forget remote data
+		// delete
 		Session::forget(get_called_class());
 		
-		// forget local data
-		static::$data = array();
+		// Sometimes you'll want to forget the persistant data,
+		// but then use it again on the final thank you page.
+		// What we'll do here is flash for a final use.
+		
+		// flash (for one last use)
+		Session::flash(get_called_class(), serialize(static::$data));
 	}
 	
 	/**
