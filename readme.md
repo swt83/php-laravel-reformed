@@ -10,8 +10,6 @@ In ``application/bundles.php`` add:
 'form' => array('auto' => true),
 ```
 
-The bundle contains two classes, a ``FormModel`` class for building forms and an ``Alert`` class for handling error notices.
-
 ## Example ##
 
 When working w/ forms, I always have three parts:  the ``Route`` or ``Controller``, the ``View``, and the ``FormModel``.  The following is a basic example of how I might make a simple registration form:
@@ -40,7 +38,7 @@ You could process the form in the controller, but I like to pass things to a ``r
 ### The View ###
 
 ```php
-<?=Alert::get();?>
+<?=RegisterForm::alert();?>
 <?=Form::open();?>
 <?=Form::label('name', 'Name*');?>
 <?=Form::text('name', RegisterForm::populate('name'));?>
@@ -48,7 +46,7 @@ You could process the form in the controller, but I like to pass things to a ``r
 <?=Form::close();?>
 ```
 
-``Alert`` is a helper class I use w/ my forms to facilitate printing error messages.  I always put it at the top.
+The ``alert()`` method is a helper function I use w/ my forms to facilitate printing error messages.  I always put it at the top.
 
 ### The Model ###
 
@@ -82,7 +80,7 @@ class RegisterForm extends FormModel
 			else
 			{
 				// alert
-				Alert::set('<p>Sorry, only Foo Bar is allowed to register.</p>', 'red');
+				static::set_alert('<p>Sorry, only Foo Bar is allowed to register.</p>', 'red');
 				
 				// redirect
 				return Redirect::to(URL::current())->with_input();

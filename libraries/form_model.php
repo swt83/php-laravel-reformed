@@ -256,6 +256,72 @@ class FormModel
 	}
 	
 	/**
+	 * Show a form notice for the user.
+	 *
+	 * @return	string
+	 */
+	public static function alert()
+	{
+		// load errors
+		$errors = Session::get('errors');
+		
+		// load alert (maybe null)
+		$alert = Session::get('alert_'.get_called_class());
+		
+		// if errors...
+		if ($errors)
+		{
+			// build friendly array
+			$clean_errors = array();
+			foreach ($errors->messages as $error)
+			{
+				$clean_errors[] = $error[0];
+			}
+			
+			// return
+	    	return static::build_alert('<p>Form Errors:</p>'.HTML::ul($clean_errors), 'red');
+    	}
+    	
+    	// if no errors, but alert...
+    	elseif ($alert)
+    	{
+    		// return
+    		return $alert;
+    	}
+    	
+    	// if nothing...
+    	else
+    	{
+    		// return
+    		return null;
+    	}
+	}
+	
+	/**
+	 * Set alert/notification box from string.
+	 *
+	 * @param	string	$string
+	 * @param	string	$color
+	 * @return	string
+	 */
+	public static function set_alert($string, $color)
+	{
+		Session::flash('alert_'.get_called_class(), static::build_alert($string, $color));
+	}
+	
+	/**
+	 * Build alert/notification box from string.
+	 *
+	 * @param	string	$string
+	 * @param	string	$color
+	 * @return	string
+	 */
+	protected static function build_alert($string, $color)
+	{
+		return '<div class="alert '.$color.'">'.$string.'</div>';
+	}
+	
+	/**
 	 * Plant a cookie prior to post, to see if cookies are disabled.
 	 */
 	public static function plant_cookie()
@@ -266,15 +332,16 @@ class FormModel
 		// then attempting to harvest it after.  Handle as needed.
 	
 		// plant test cookie
-		Session::put(md5(get_called_class()), true);
-		
+		Session::put('cookie_'.get_called_class(), true);
 	}
 	
 	/**
 	 * Harvest a cookie after a post, to see if cookies are disabled.
+	 *
+	 * @return	bool
 	 */
 	public static function harvest_cookie()
 	{
-		return Session::get(md5(get_called_class()), false);
+		return Session::get('cookie_'.get_called_class(), false);
 	}
 }
