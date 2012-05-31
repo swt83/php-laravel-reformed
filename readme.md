@@ -18,7 +18,7 @@ The bundle contains two classes, a ``FormModel`` class for building forms and an
 
 ## Example ##
 
-When working w/ forms, I always have the ``Route/Controller``, the ``View``, and the ``FormModel``.  The following is an example of how I might make a simple registration form.
+When working w/ forms, I always have three parts:  the ``Route`` or ``Controller``, the ``View``, and the ``FormModel``.  The following is an example of how I might make a simple registration form.
 
 ### The Controller ###
 
@@ -39,7 +39,7 @@ class Example extends Base_Controller
 }
 ```
 
-You could process the form in the controller, but I like to pass things to a ``run()`` method to handle everything from inside my ``FormModel``.
+You could process the form in the controller, but I like to pass things to a ``run()`` method to handle everything inside my model.
 
 ### The View ###
 
@@ -52,23 +52,30 @@ You could process the form in the controller, but I like to pass things to a ``r
 <?=Form::close();?>
 ```
 
-``Alert`` is a helper class I use w/ my form models to facilitate printing error messages.  I always put it at the top.
+``Alert`` is a helper class I use w/ my forms to facilitate printing error messages.  I always put it at the top.
 
-### Form Model ###
+### The Model ###
 
 ```php
 <?php
 
-class RegisterForm extends FormModel()
+class RegisterForm extends FormModel
 {
+	// field rules
 	public static $rules = array(
 		'name' => 'required',
 	);
-
+	
+	// persistant data mode
+	public static $remember = false;
+	
+	// process the form
 	public static function run()
 	{
+		// if passes...
 		if (static::is_valid())
 		{
+			// test...
 			if ($name === 'Foo Bar')
 			{
 				// save
@@ -94,7 +101,9 @@ class RegisterForm extends FormModel()
 }
 ```
 
-The ``FormModel`` class is capable of more than I can really explain in a readme, but this example should get you off the ground.  Take a look at the class and read what the methods do.  You'll know you're using it to it's full potential if you aren't using any ``Input`` class methods.
+The ``FormModel`` class is capable of more than I can really explain in a readme, but this example should get you off the ground.  Take a look at the classes and read what the methods do.
+
+You'll know you're using it to it's full potential if you aren't using any ``Input`` class methods at all.
 
 ## Notes ##
 
@@ -104,10 +113,12 @@ There are several tricky aspects to working with forms.  Building out this form 
 
 Before a post, the model has no data at all.  So unless you use a ``fill()`` method to add data, your ``has()``, ``get()``, and ``all()`` methods won't do anything useful.  Generally you'll be working in a controller or a view and the only methods you'll use are ``fill()``, ``populate()``, and ``error()``.
 
-After a post, the model will immediately store all input in the ``static::$data`` array.  You can use any method at this point to get access to your data.  Generally you'll be working in the model itself under a ``run()`` method or something of your choosing, processing the form and ending w/ a returned redirect. 
+After a post, the model will immediately store all input in the ``static::$data`` array.  You can use any method at this point to get access to your data.  Generally you'll be working in the model itself under a ``run()`` method (or other method name of your choosing), processing the form and returning a resulting redirect. 
 
 ### Persistant Data Over Multi-Page Forms ###
 
-In your model you can add a variable ``static::$remember`` which will cause the form to remember data between pageloads.  You don't have to add any special method calls to your form processing, the model will just do it.
+In your model you can add a variable ``static::$remember`` which will cause the form to remember data between pageloads.  You don't have to make any special method calls, the model will just do it.  Redirecting ``with_input()`` becomes unnecessary.
 
-When it comes time to forget the data, after a final and successful post on the last page, you'll use the ``forget()`` method to erase everything.  The data will be flashed for a final use on a possible "thank you" page.
+You should look over the model code and notice the ``push()`` and ``pull()`` methods.  It's good to know when the model will save your information, and when it will load your saved information.  Pre-post, just stick w/ ``populate()`` and you'll be fine.
+
+When it comes time to forget the data, after a final and successful post on the last page, you'll use the ``forget()`` method to erase everything.  The data will be flashed so you can use it one last time on a possible "thank you" page, or similar.
