@@ -80,16 +80,25 @@ class FormModel
 	/**
 	 * Serialize data array and store in session.
 	 */
-	protected static function push()
+	private static function push()
 	{
 		// set remote data array
 		Session::put(get_called_class(), serialize(static::$data));
 	}
 	
 	/**
+	 * Remember data array and store in session, but only for one pageload.
+	 */
+	private static function flash()
+	{
+		// set remote data array
+		Session::flash(get_called_class(), serialize(static::$data));
+	}
+	
+	/**
 	 * Unserialize session and populate data array.
 	 */
-	protected static function pull()
+	private static function pull()
 	{
 		// if session...
 		if (Session::has(get_called_class()))
@@ -100,26 +109,30 @@ class FormModel
 	}
 	
 	/**
-	 * Store latest input in data array (possibly persistant).
+	 * Remember data array.
 	 */
-	protected static function remember()
+	public static function remember()
 	{
+		// default fill
+		static::fill(Input::all());
+		
 		// if remember...
 		if (static::$remember)
 		{
+			// new
+			$temp = static::all();
+		
 			// pull
 			static::pull();
 			
 			// update
-			static::fill(Input::all());
+			static::fill($temp);
 			
 			// push
 			static::push();
-		}
-		else
-		{
-			// update
-			static::fill(Input::all());			
+			
+			// cleanup
+			unset($temp);
 		}
 	}
 	
@@ -135,8 +148,8 @@ class FormModel
 		// but then use it again on the final thank you page.
 		// What we'll do here is flash for a final use.
 		
-		// flash (for one last use)
-		Session::flash(get_called_class(), serialize(static::$data));
+		// flash
+		static::flash();
 	}
 	
 	/**
@@ -222,7 +235,7 @@ class FormModel
 		
 		// pull
 		if (empty(static::$data) and static::$remember) static::pull();
-	
+		
 		// return
 		return Input::old($field, static::get($field, $default));
 	}
