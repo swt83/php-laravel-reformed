@@ -48,7 +48,7 @@ class FormModel
 			// use all rules
 			$rules = static::$rules;
 		}
-	
+		
 		// if rules...
 		if (!empty($rules))
 		{
@@ -58,6 +58,12 @@ class FormModel
 			// if passes...
 			if (static::$validation->passes())
 			{
+				// When a form passes validation, let's automatically
+				// fill the data array and remember the values.
+				
+				// fill
+				static::fill(Input::all());
+			
 				// remember
 				static::remember();
 				
@@ -78,61 +84,45 @@ class FormModel
 	}
 	
 	/**
-	 * Serialize data array and store in session.
+	 * Load data array from session.
 	 */
-	private static function push()
-	{
-		// set remote data array
-		Session::put(get_called_class(), serialize(static::$data));
-	}
-	
-	/**
-	 * Remember data array and store in session, but only for one pageload.
-	 */
-	private static function flash()
-	{
-		// set remote data array
-		Session::flash(get_called_class(), serialize(static::$data));
-	}
-	
-	/**
-	 * Unserialize session and populate data array.
-	 */
-	private static function pull()
+	public static function pull()
 	{
 		// if session...
 		if (Session::has(get_called_class()))
 		{
-			// get remote data array
+			// load
 			static::$data = unserialize(Session::get(get_called_class()));
 		}
 	}
 	
 	/**
-	 * Remember data array.
+	 * Remember data array (automatic when using is_valid() method).
 	 */
 	public static function remember()
 	{
-		// default fill
-		static::fill(Input::all());
-		
+		// There is a big difference between pulling and remembering.
+		// When you pull, you're just loading what has already been
+		// saved.  When you remember, you are splicing together what
+		// has been saved and what is new.
+	
 		// if remember...
 		if (static::$remember)
-		{
-			// new
-			$temp = static::all();
+		{	
+			// old
+			$existing = static::all();
 		
 			// pull
 			static::pull();
 			
-			// update
-			static::fill($temp);
+			// fill
+			static::fill($existing);
 			
 			// push
-			static::push();
+			Session::put(get_called_class(), serialize(static::$data));
 			
 			// cleanup
-			unset($temp);
+			unset($existing);
 		}
 	}
 	
@@ -141,7 +131,7 @@ class FormModel
 	 */
 	public static function forget()
 	{	
-		// delete
+		// forget
 		Session::forget(get_called_class());
 		
 		// Sometimes you'll want to forget the persistant data,
@@ -149,7 +139,16 @@ class FormModel
 		// What we'll do here is flash for a final use.
 		
 		// flash
-		static::flash();
+		Session::flash(get_called_class(), serialize(static::$data));
+	}
+	
+	/**
+	 * Flash data array (alias of forget() method).
+	 */
+	public static function flash()
+	{
+		// alias
+		static::forget();
 	}
 	
 	/**
@@ -233,8 +232,8 @@ class FormModel
 		// situations.  In a pre-post context, assume either a fill()
 		// was used to build the data array or a pull is necessary.
 		
-		// pull
-		if (empty(static::$data) and static::$remember) static::pull();
+		// remember
+		if (empty(static::$data)) static::pull();
 		
 		// return
 		return Input::old($field, static::get($field, $default));
