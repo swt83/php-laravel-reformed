@@ -13,8 +13,9 @@ class FormModel
 {
 	public static $data = array();
 	public static $rules = array();
-	public static $remember = false; // persistant data mode
 	public static $validation = null;
+	public static $errors = array();
+	public static $remember = false; // persistant data mode
 
 	/**
 	 * Validates form, sets all input to data array.
@@ -29,6 +30,9 @@ class FormModel
 		{
 			return false;
 		}
+		
+		// fill data array
+		static::fill(Input::all());
 		
 		// if fields...
 		if (is_array($fields))
@@ -53,16 +57,13 @@ class FormModel
 		if (!empty($rules))
 		{
 			// validate
-			static::$validation = Validator::make(Input::all(), $rules);
+			static::$validation = Validator::make(static::$data, $rules);
 			
 			// if passes...
 			if (static::$validation->passes())
 			{
-				// When a form passes validation, let's automatically
-				// fill the data array and remember the values.
-				
-				// fill
-				static::fill(Input::all());
+				// When a form passes validation, let's take the
+				// liberty of automatically remembering the values.
 			
 				// remember
 				static::remember();
@@ -72,6 +73,9 @@ class FormModel
 			}
 			else
 			{
+				// flash errors
+				Session::flash('errors_'.get_called_class(), static::$validation->errors);
+			
 				// return
 				return false;
 			}
@@ -104,7 +108,7 @@ class FormModel
 		// There is a big difference between pulling and remembering.
 		// When you pull, you're just loading what has already been
 		// saved.  When you remember, you are splicing together what
-		// has been saved and what is new.
+		// has been saved w/ what is new.
 	
 		// if remember...
 		if (static::$remember)
@@ -120,9 +124,6 @@ class FormModel
 			
 			// push
 			Session::put(get_called_class(), serialize(static::$data));
-			
-			// cleanup
-			unset($existing);
 		}
 	}
 	
@@ -165,7 +166,7 @@ class FormModel
 			foreach ($input as $field => $value)
 			{
 				// set field value
-				static::$data[$field] = $input[$field];
+				static::$data[$field] = trim($input[$field]); // trim just in case
 			}
 		}
 	}
@@ -248,11 +249,8 @@ class FormModel
 	 */
 	public static function error($field, $default = null)
 	{
-		// Because this is based on a flashed validation object,
-		// this method is only useful in a pre-post context.
-	
 		// load session
-		$errors = Session::get('errors');
+		$errors = Session::get('errors_'.get_called_class());
 		
 		// if errors...
 		if ($errors)
@@ -268,17 +266,19 @@ class FormModel
 	}
 	
 	/**
-	 * Show a form notice for the user.
+	 * Set alert box value after form post.
 	 *
-	 * @return	string
+	 * @param	string	$string
+	 * @param	string	$color
+	 * @return	string/void
 	 */
-	public static function alert()
+	public static function alert($string = null, $color = 'red')
 	{
-		// load errors
-		$errors = Session::get('errors');
+		// Regardless of what alert may have been set,
+		// if the error array is set, we need to show
+		// the list of errors.
 		
-		// load alert (maybe null)
-		$alert = Session::get('alert_'.get_called_class());
+		$errors = Session::get('errors_'.get_called_class());
 		
 		// if errors...
 		if ($errors)
@@ -291,59 +291,100 @@ class FormModel
 			}
 			
 			// return
-	    	return static::build_alert('<p>Form Errors:</p>'.HTML::ul($clean_errors), 'red');
+	    	return static::alert_build('<p>Form Errors:</p>'.HTML::ul($clean_errors), 'red');
     	}
-    	
-    	// if no errors, but alert...
-    	elseif ($alert)
-    	{
-    		// return
-    		return $alert;
-    	}
-    	
-    	// if nothing...
-    	else
-    	{
-    		// return
-    		return null;
-    	}
+		
+		// With no arguments, the method is being used
+		// to fetch the current alert status.
+		
+		// if string...
+		if (!$string)
+		{	
+			// load alert
+			$alert = Session::get('alert_'.get_called_class());
+			
+			// if alert...
+			if ($alert)
+			{
+				// return
+				return static::alert_build('<p>'.$alert['string'].'</p>', $alert['color']);
+			}
+			else
+			{
+				// If an alert was not found in the session, it might be
+				// found in the GET vars.  Assumede coding is necessary.
+				// This would only be used if cookies are disabled.
+			
+				// load alert
+				$alert = Input::get('alert');
+				
+				// if warning...
+				if ($alert)
+				{
+					// return
+					return static::alert_build('<p>'.static::url_decode($alert).'</p>', 'red');
+				}
+				else
+				{
+					// return
+					return null;
+				}
+			}
+		}
+		
+		// With arguments, the method is being used to
+		// construct the alert HTML and save to session.
+		
+		else
+		{			
+			Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
+		}
 	}
 	
 	/**
-	 * Set alert/notification box from string.
+	 * Build HTML for alert box.
 	 *
 	 * @param	string	$string
 	 * @param	string	$color
 	 * @return	string
 	 */
-	public static function set_alert($string, $color)
-	{
-		Session::flash('alert_'.get_called_class(), static::build_alert($string, $color));
-	}
-	
-	/**
-	 * Build alert/notification box from string.
-	 *
-	 * @param	string	$string
-	 * @param	string	$color
-	 * @return	string
-	 */
-	protected static function build_alert($string, $color)
+	private static function alert_build($string, $color = null)
 	{
 		return '<div class="alert '.$color.'">'.$string.'</div>';
 	}
 	
 	/**
+	 * Helper for encoding alerts through the URL.
+	 *
+	 * @param	string	$string
+	 * @return	string
+	 */
+	public static function url_encode($string)
+	{
+		return urlencode(base64_encode($string));
+	}
+
+	/**
+	 * Helper for decoding alerts through the URL.
+	 *
+	 * @param	string	$string
+	 * @return	string
+	 */	
+	public static function url_decode($string)
+	{
+		return base64_decode(urldecode($string));
+	}
+	
+	/**
 	 * Plant a cookie prior to post, to see if cookies are disabled.
 	 */
-	public static function plant_cookie()
+	public static function plant()
 	{
 		// In rare cases, people disable cookies which prevents you
 		// from being able to store persistant data.  We can detect
 		// these people by planting a cookie before the post and
 		// then attempting to harvest it after.  Handle as needed.
-	
-		// plant test cookie
+		
 		Session::put('cookie_'.get_called_class(), true);
 	}
 	
@@ -352,7 +393,7 @@ class FormModel
 	 *
 	 * @return	bool
 	 */
-	public static function harvest_cookie()
+	public static function harvest()
 	{
 		return Session::get('cookie_'.get_called_class(), false);
 	}
