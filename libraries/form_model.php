@@ -13,8 +13,6 @@ class FormModel
 {
 	public static $data = array();
 	public static $rules = array();
-	public static $validation = null;
-	public static $errors = array();
 	public static $remember = false; // persistant data mode
 
 	/**
@@ -30,6 +28,11 @@ class FormModel
 		{
 			return false;
 		}
+		
+		// We're going to fill the data array after every post,
+		// that way we can use all the available methods even
+		// if the post was invalid.  On the next post, everything
+		// will get overwritten anyway.
 		
 		// fill data array
 		static::fill(Input::all());
@@ -57,14 +60,16 @@ class FormModel
 		if (!empty($rules))
 		{
 			// validate
-			static::$validation = Validator::make(static::$data, $rules);
+			$validation = Validator::make(static::all(), $rules);
 			
 			// if passes...
-			if (static::$validation->passes())
+			if ($validation->passes())
 			{
-				// When a form passes validation, let's take the
-				// liberty of automatically remembering the values.
-			
+				// If the post was valid, we're going to save the values.
+				// We assume that no two fields on different pages will
+				// have the same name, thus each successful post adds more
+				// and more values to the session.
+				
 				// remember
 				static::remember();
 				
@@ -73,8 +78,12 @@ class FormModel
 			}
 			else
 			{
+				// The form model is using it's own session to store
+				// errors, thus making the redirect with_errors() no
+				// longer necessary.
+			
 				// flash errors
-				Session::flash('errors_'.get_called_class(), static::$validation->errors);
+				Session::flash('errors_'.get_called_class(), $validation->errors);
 			
 				// return
 				return false;
@@ -92,6 +101,11 @@ class FormModel
 	 */
 	public static function pull()
 	{
+		// There is a big difference between pulling and remembering.
+		// When you pull, you're just loading what has already been
+		// saved.  When you remember, you are adding what is new to
+		// what has already been saved.
+	
 		// if session...
 		if (Session::has(get_called_class()))
 		{
@@ -104,25 +118,20 @@ class FormModel
 	 * Remember data array (automatic when using is_valid() method).
 	 */
 	public static function remember()
-	{
-		// There is a big difference between pulling and remembering.
-		// When you pull, you're just loading what has already been
-		// saved.  When you remember, you are splicing together what
-		// has been saved w/ what is new.
-	
+	{	
 		// if remember...
 		if (static::$remember)
 		{	
-			// old
+			// grab existing values
 			$existing = static::all();
 		
-			// pull
+			// pull previous values
 			static::pull();
 			
-			// fill
+			// merge together
 			static::fill($existing);
 			
-			// push
+			// push merged values
 			Session::put(get_called_class(), serialize(static::$data));
 		}
 	}
@@ -229,9 +238,10 @@ class FormModel
 	public static function populate($field, $default = null)
 	{
 		// The question of when to pull is tricky.  All data is stored
-		// after the post, so the need to pull only applies to pre-post
-		// situations.  In a pre-post context, assume either a fill()
-		// was used to build the data array or a pull is necessary.
+		// after the post, so the need to pull only applies to a GET
+		// context (or a POST context where is_valid() is not used).
+		// In a GET context, assume either a fill() was used to build
+		// the data array or a pull is necessary.
 		
 		// remember
 		if (empty(static::$data)) static::pull();
@@ -278,6 +288,7 @@ class FormModel
 		// if the error array is set, we need to show
 		// the list of errors.
 		
+		// load errors
 		$errors = Session::get('errors_'.get_called_class());
 		
 		// if errors...
@@ -372,7 +383,7 @@ class FormModel
 	 */	
 	public static function url_decode($string)
 	{
-		return base64_decode(urldecode($string));
+		return base64_decode($string); // urldecode not necessary
 	}
 	
 	/**
