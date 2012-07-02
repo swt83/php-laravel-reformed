@@ -237,7 +237,7 @@ class Reformed
 	 */
 	public static function populate($field, $default = null)
 	{
-		return static::get($field, $default);
+		return Input::old($field, static::get($field, $default));
 	}
 	
 	/**
@@ -315,7 +315,7 @@ class Reformed
 		}
 		
 		// With arguments, the method is being used to
-		// construct the alert HTML and save to session.
+		// construct a custom alert message.
 		
 		else
 		{			
