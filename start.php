@@ -1,5 +1,5 @@
 <?php
 
 Autoloader::map(array(
-	'FormModel' => __DIR__.'/libraries/form_model.php',
+	'Reformed' => __DIR__.'/libraries/reformed.php',
 ));

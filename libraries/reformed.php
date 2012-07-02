@@ -3,13 +3,13 @@
 /**
  * A model to facilitate working w/ forms in LaravelPHP.
  *
- * @package    FormModel
+ * @package    Reformed
  * @author     Scott Travis <scott.w.travis@gmail.com>
- * @link       http://github.com/swt83/laravel-form-model
+ * @link       http://github.com/swt83/laravel-reformed
  * @license    MIT License
  */
 
-class FormModel
+class Reformed
 {
 	public static $data = array();
 	public static $rules = array();
@@ -79,8 +79,8 @@ class FormModel
 			else
 			{
 				// The form model is using it's own session to store
-				// errors, thus making the redirect with_errors() no
-				// longer necessary.
+				// errors, thus making the redirect with_errors()
+				// no longer necessary.
 			
 				// flash errors
 				Session::flash('errors_'.get_called_class(), $validation->errors);
@@ -97,14 +97,15 @@ class FormModel
 	}
 	
 	/**
-	 * Load data array from session.
+	 * Load data from session.
 	 */
-	public static function pull()
+	public static function refresh()
 	{
-		// There is a big difference between pulling and remembering.
-		// When you pull, you're just loading what has already been
-		// saved.  When you remember, you are adding what is new to
-		// what has already been saved.
+		// There is a big difference between "refreshing" and
+		// "remembering".  When you "refresh", you're just
+		// loading what has already been remembered.  When you
+		// "remember", you're adding what is new to what was
+		// already remembered previously.
 	
 		// if session...
 		if (Session::has(get_called_class()))
@@ -115,18 +116,18 @@ class FormModel
 	}
 	
 	/**
-	 * Remember data array (automatic when using is_valid() method).
+	 * Remember data (automatic when using is_valid() method).
 	 */
 	public static function remember()
 	{	
-		// if remember...
+		// if remember mode...
 		if (static::$remember)
 		{	
 			// grab existing values
 			$existing = static::all();
 		
 			// pull previous values
-			static::pull();
+			static::refresh();
 			
 			// merge together
 			static::fill($existing);
@@ -153,11 +154,10 @@ class FormModel
 	}
 	
 	/**
-	 * Flash data array (alias of forget() method).
+	 * Flash data array.
 	 */
 	public static function flash()
 	{
-		// alias
 		static::forget();
 	}
 	
@@ -174,38 +174,50 @@ class FormModel
 			// spin input...
 			foreach ($input as $field => $value)
 			{
-				// set field value
+				// set value
 				static::$data[$field] = trim($input[$field]); // trim just in case
 			}
 		}
 	}
 	
 	/**
-	 * Set field value in data array.
+	 * Get all field values as array.
+	 *
+	 * @return	array
+	 */
+	public static function all()
+	{	
+		return static::$data;
+	}
+	
+	/**
+	 * Set field value.
 	 *
 	 * @param	string	$field
 	 * @param	string	$value
 	 */
 	public static function set($field, $value)
 	{
-		// set new value
 		static::$data[$field] = $value;
 	}
 	
 	/**
-	 * Check if field value exists in data array.
+	 * Check if field value exists.
 	 *
 	 * @param	string	$field
 	 * @return	bool
 	 */
 	public static function has($field)
 	{
+		// refresh memory
+		if (empty(static::$data)) static::refresh();
+	
 		// return
 		return isset(static::$data[$field]) and !empty(static::$data[$field]);
 	}
 	
 	/**
-	 * Get field value from data array.
+	 * Get field value.
 	 *
 	 * @param	string	$field
 	 * @param	string	$default
@@ -213,23 +225,11 @@ class FormModel
 	 */
 	public static function get($field, $default = null)
 	{
-		// return
 		return static::has($field) ? static::$data[$field] : $default;
 	}
 	
 	/**
-	 * Get all fields from data array.
-	 *
-	 * @return	array
-	 */
-	public static function all()
-	{	
-		// return
-		return static::$data;
-	}
-	
-	/**
-	 * Get field value from old input or data array.
+	 * Get field value.
 	 *
 	 * @param	string	$field
 	 * @param	string	$default
@@ -237,17 +237,7 @@ class FormModel
 	 */
 	public static function populate($field, $default = null)
 	{
-		// The question of when to pull is tricky.  All data is stored
-		// after the post, so the need to pull only applies to a GET
-		// context (or a POST context where is_valid() is not used).
-		// In a GET context, assume either a fill() was used to build
-		// the data array or a pull is necessary.
-		
-		// remember
-		if (empty(static::$data)) static::pull();
-		
-		// return
-		return Input::old($field, static::get($field, $default));
+		return static::get($field, $default);
 	}
 	
 	/**
@@ -282,63 +272,44 @@ class FormModel
 	 * @param	string	$color
 	 * @return	string/void
 	 */
-	public static function alert($string = null, $color = 'red')
+	public static function alert($string = null, $color = null)
 	{
-		// Regardless of what alert may have been set,
-		// if the error array is set, we need to show
-		// the list of errors.
-		
-		// load errors
-		$errors = Session::get('errors_'.get_called_class());
-		
-		// if errors...
-		if ($errors)
-		{
-			// build friendly array
-			$clean_errors = array();
-			foreach ($errors->messages as $error)
-			{
-				$clean_errors[] = $error[0];
-			}
-			
-			// return
-	    	return static::alert_build('<p>Form Errors:</p>'.HTML::ul($clean_errors), 'red');
-    	}
-		
 		// With no arguments, the method is being used
 		// to fetch the current alert status.
 		
-		// if string...
+		// if no string...
 		if (!$string)
 		{	
-			// load alert
-			$alert = Session::get('alert_'.get_called_class());
+			// Regardless of what alert may have been set,
+			// if the error array is set, we need to show
+			// the list of errors.
 			
-			// if alert...
-			if ($alert)
+			// load errors
+			$errors = Session::get('errors_'.get_called_class());
+			
+			// if errors...
+			if ($errors)
 			{
+				// build friendly array
+				$clean_errors = array();
+				foreach ($errors->messages as $error)
+				{
+					$clean_errors[] = $error[0];
+				}
+				
 				// return
-				return static::alert_build('<p>'.$alert['string'].'</p>', $alert['color']);
+				return '<div class="alert red"><p>Form Errors:</p>'.HTML::ul($clean_errors).'</div>';
 			}
 			else
 			{
-				// If an alert was not found in the session, it might be
-				// found in the GET vars.  Assumede coding is necessary.
-				// This would only be used if cookies are disabled.
-			
 				// load alert
-				$alert = Input::get('alert');
+				$alert = Session::get('alert_'.get_called_class());
 				
-				// if warning...
+				// if alert...
 				if ($alert)
 				{
 					// return
-					return static::alert_build('<p>'.static::url_decode($alert).'</p>', 'red');
-				}
-				else
-				{
-					// return
-					return null;
+					return '<div class="alert '.$alert['color'].'"><p>'.$alert['string'].'</p></div>';
 				}
 			}
 		}
@@ -350,62 +321,5 @@ class FormModel
 		{			
 			Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
 		}
-	}
-	
-	/**
-	 * Build HTML for alert box.
-	 *
-	 * @param	string	$string
-	 * @param	string	$color
-	 * @return	string
-	 */
-	private static function alert_build($string, $color = null)
-	{
-		return '<div class="alert '.$color.'">'.$string.'</div>';
-	}
-	
-	/**
-	 * Helper for encoding alerts through the URL.
-	 *
-	 * @param	string	$string
-	 * @return	string
-	 */
-	public static function url_encode($string)
-	{
-		return urlencode(base64_encode($string));
-	}
-
-	/**
-	 * Helper for decoding alerts through the URL.
-	 *
-	 * @param	string	$string
-	 * @return	string
-	 */	
-	public static function url_decode($string)
-	{
-		return base64_decode($string); // urldecode not necessary
-	}
-	
-	/**
-	 * Plant a cookie prior to post, to see if cookies are disabled.
-	 */
-	public static function plant()
-	{
-		// In rare cases, people disable cookies which prevents you
-		// from being able to store persistant data.  We can detect
-		// these people by planting a cookie before the post and
-		// then attempting to harvest it after.  Handle as needed.
-		
-		Session::put('cookie_'.get_called_class(), true);
-	}
-	
-	/**
-	 * Harvest a cookie after a post, to see if cookies are disabled.
-	 *
-	 * @return	bool
-	 */
-	public static function harvest()
-	{
-		return Session::get('cookie_'.get_called_class(), false);
 	}
 }
