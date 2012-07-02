@@ -33,7 +33,7 @@ class Example extends Base_Controller
 }
 ```
 
-Notice the ``run()`` method.  This could be named anything you want, but the important thing it to process the form directly from the model.  This keeps things nice a tidy and contained in a single place.
+Notice the ``run()`` method.  This could be named anything you want, but the important thing it to process the form directly from the model.  This keeps things nice and tidy and contained in a single place.
 
 ### The View ###
 
