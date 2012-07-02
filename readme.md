@@ -7,7 +7,7 @@ A model for working w/ forms in LaravelPHP, based on Shawn McCool's [Form Base M
 In ``application/bundles.php`` add:
 
 ```php
-'form' => array('auto' => true),
+'reformed' => array('auto' => true),
 ```
 
 ## Example ##
