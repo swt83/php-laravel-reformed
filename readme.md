@@ -1,6 +1,6 @@
 # Reformed for LaravelPHP #
 
-A model for working w/ forms in LaravelPHP, based on Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  I have found Shawn's form model concept to be extremely helpful and has completely changed how I do forms.  Every form has a model now.  Reformed is my own implementation, refined from my experiences over the last several months.
+A model for working w/ forms in LaravelPHP, based on Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  I have found Shawn's form model concept to be extremely helpful and has completely changed how I do forms.  Every form has a model now.  Reformed is my own implementation, refined from my experiences working w/ it over the last several months.
 
 ## Install ##
 
