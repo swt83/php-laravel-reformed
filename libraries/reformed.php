@@ -29,9 +29,9 @@ class Reformed
 			return false;
 		}
 		
-		// We're going to fill the data array after every post,
-		// that way we can use all the available methods even
-		// if the post was invalid.  On the next post, everything
+		// We're going to fill the data array after every post
+		// so we can use all the available data methods.  Even
+		// if the post was invalid, on the next post everything
 		// will get overwritten anyway.
 		
 		// fill data array
@@ -65,9 +65,9 @@ class Reformed
 			// if passes...
 			if ($validation->passes())
 			{
-				// If the post was valid, we're going to save the values.
-				// We assume that no two fields on different pages will
-				// have the same name, thus each successful post adds more
+				// If the post was valid, we're going to remember the values.
+				// We assume that no two fields on different pages will have
+				// the same name, thus each successful post just adds more
 				// and more values to the session.
 				
 				// remember
@@ -79,7 +79,7 @@ class Reformed
 			else
 			{
 				// The form model is using it's own session to store
-				// errors, thus making the redirect with_errors()
+				// errors, thus making a redirect with_errors() is
 				// no longer necessary.
 			
 				// flash errors
@@ -110,13 +110,13 @@ class Reformed
 		// if session...
 		if (Session::has(get_called_class()))
 		{
-			// load
+			// pull data
 			static::$data = unserialize(Session::get(get_called_class()));
 		}
 	}
 	
 	/**
-	 * Remember data (automatic when using is_valid() method).
+	 * Save data to session.
 	 */
 	public static function remember()
 	{	
@@ -138,7 +138,7 @@ class Reformed
 	}
 	
 	/**
-	 * Forget persistant data array.
+	 * Forget data.
 	 */
 	public static function forget()
 	{	
@@ -154,7 +154,7 @@ class Reformed
 	}
 	
 	/**
-	 * Flash data array.
+	 * Flash data.
 	 */
 	public static function flash()
 	{
@@ -162,7 +162,7 @@ class Reformed
 	}
 	
 	/**
-	 * Fill data array w/ values.
+	 * Fill data w/ values.
 	 *
 	 * @param	array	$input
 	 */
