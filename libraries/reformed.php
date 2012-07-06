@@ -9,7 +9,7 @@
  * @license    MIT License
  */
 
-class Reformed
+abstract class Reformed
 {
 	public static $data = array();
 	public static $rules = array();
@@ -175,7 +175,7 @@ class Reformed
 			foreach ($input as $field => $value)
 			{
 				// set value
-				static::$data[$field] = trim($input[$field]); // trim just in case
+				static::$data[$field] = $input[$field];
 			}
 		}
 	}
@@ -229,6 +229,30 @@ class Reformed
 	}
 	
 	/**
+	 * Get field value from input array.
+	 *
+	 * @param	string	$field
+	 * @param	string	$option
+	 */
+	public static function get_array($field, $option)
+	{
+		// Sometimes in PHP we use input arrays to store values,
+		// usually with checkboxes.  This allows us to see
+		// if a specific option has been selected or not.
+		// TIP: use Form::hidden() to clear this input array
+		// when no option is selected.
+	
+		// get input value
+		$input = static::get($field, array());
+		
+		// catch blank
+		if ($input === '') $input = array();
+		
+		// check in_array
+		return in_array($option, $input) ? true : false;
+	}
+	
+	/**
 	 * Get field value.
 	 *
 	 * @param	string	$field
@@ -238,6 +262,24 @@ class Reformed
 	public static function populate($field, $default = null)
 	{
 		return Input::old($field, static::get($field, $default));
+	}
+	
+	/**
+	 * Get field value from input array.
+	 *
+	 * @param	string	$field
+	 * @param	string	$option
+	 */
+	public static function populate_array($field, $option)
+	{
+		// get input value
+		$input = Input::old($field, static::get($field, array()));
+		
+		// catch blank
+		if ($input === '') $input = array();
+		
+		// check in_array
+		return in_array($option, $input) ? true : false;
 	}
 	
 	/**
