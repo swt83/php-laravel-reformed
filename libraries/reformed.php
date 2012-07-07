@@ -308,60 +308,71 @@ abstract class Reformed
 	}
 	
 	/**
-	 * Set alert box value after form post.
+	 * Set alert box value.
 	 *
 	 * @param	string	$string
 	 * @param	string	$color
 	 * @return	string/void
 	 */
-	public static function alert($string = null, $color = null)
+	public static function alert($string = null, $color = 'red')
 	{
-		// With no arguments, the method is being used
-		// to fetch the current alert status.
+		Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
+	}
+	
+	/**
+	 * Print alert box (and override current value).
+	 *
+	 * @param	string	$string
+	 * @param	string	$color
+	 * @return	string/void
+	 */
+	public static function show_alert($string = null, $color = 'red')
+	{
+		// Regardless of what alert may have been set,
+		// if the error array is set, we need to show
+		// the list of errors.
 		
-		// if no string...
-		if (!$string)
-		{	
-			// Regardless of what alert may have been set,
-			// if the error array is set, we need to show
-			// the list of errors.
-			
-			// load errors
-			$errors = Session::get('errors_'.get_called_class());
-			
-			// if errors...
-			if ($errors)
+		// load errors
+		$errors = Session::get('errors_'.get_called_class());
+		
+		// if errors...
+		if ($errors)
+		{
+			// build friendly array
+			$clean_errors = array();
+			foreach ($errors->messages as $error)
 			{
-				// build friendly array
-				$clean_errors = array();
-				foreach ($errors->messages as $error)
-				{
-					$clean_errors[] = $error[0];
-				}
-				
-				// return
-				return '<div class="alert red"><p>Form Errors:</p>'.HTML::ul($clean_errors).'</div>';
+				$clean_errors[] = $error[0];
 			}
-			else
-			{
-				// load alert
-				$alert = Session::get('alert_'.get_called_class());
-				
-				// if alert...
-				if ($alert)
-				{
-					// return
-					return '<div class="alert '.$alert['color'].'"><p>'.$alert['string'].'</p></div>';
-				}
-			}
+			
+			// return
+			return '<div class="alert red"><p>Form Errors:</p>'.HTML::ul($clean_errors).'</div>';
 		}
-		
-		// With arguments, the method is being used to
-		// construct a custom alert message.
-		
 		else
-		{			
-			Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
+		{
+			// load alert
+			$alert = Session::get('alert_'.get_called_class());
+			
+			// if NOT found...
+			if (!$alert)
+			{
+				// if override...
+				if ($string)
+				{
+					// set manual values
+					$alert = array(
+						'color' => $color,
+						'string' => $string,
+					);
+				}
+			}
+			
+			// if alert...
+			if ($alert)
+			{
+				// return
+				return '<div class="alert '.$alert['color'].'"><p>'.$alert['string'].'</p></div>';
+			}
 		}
 	}
 }
