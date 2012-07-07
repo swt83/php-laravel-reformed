@@ -314,7 +314,7 @@ abstract class Reformed
 	 * @param	string	$color
 	 * @return	string/void
 	 */
-	public static function alert($string = null, $color = 'red')
+	public static function set_alert($string = null, $color = 'red')
 	{
 		Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
 	}
@@ -326,7 +326,7 @@ abstract class Reformed
 	 * @param	string	$color
 	 * @return	string/void
 	 */
-	public static function show_alert($string = null, $color = 'red')
+	public static function get_alert($string = null, $color = 'red')
 	{
 		// Regardless of what alert may have been set,
 		// if the error array is set, we need to show
