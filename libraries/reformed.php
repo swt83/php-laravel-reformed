@@ -13,6 +13,7 @@ abstract class Reformed
 {
 	public static $data = array();
 	public static $rules = array();
+	public static $messages = array();
 	public static $remember = false; // persistant data mode
 
 	/**
@@ -60,7 +61,7 @@ abstract class Reformed
 		if (!empty($rules))
 		{
 			// validate
-			$validation = Validator::make(static::all(), $rules);
+			$validation = Validator::make(static::all(), $rules, static::$messages);
 			
 			// if passes...
 			if ($validation->passes())
