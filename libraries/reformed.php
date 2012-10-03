@@ -277,7 +277,7 @@ abstract class Reformed
 		$input = Input::old($field, static::get($field, array()));
 		
 		// catch blank
-		if ($input === '') $input = array();
+		if (!is_array($input)) $input = array();
 		
 		// check in_array
 		return in_array($option, $input) ? true : false;
