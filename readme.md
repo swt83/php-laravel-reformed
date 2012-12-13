@@ -38,7 +38,7 @@ Notice the ``run()`` method.  This could be named anything you want, but the imp
 ### The View ###
 
 ```php
-<?=RegisterForm::alert();?>
+<?=RegisterForm::get_alert();?>
 <?=Form::open();?>
 <?=Form::label('name', 'Name*');?>
 <?=Form::text('name', RegisterForm::populate('name'));?>
@@ -81,7 +81,7 @@ class RegisterForm extends Reformed
 			else
 			{
 				// alert
-				static::alert('Sorry, only Foo Bar is allowed to register.', 'red');
+				static::set_alert('Sorry, only Foo Bar is allowed to register.', 'red');
 				
 				// redirect
 				return Redirect::to(URL::current())->with_input();

@@ -9,13 +9,43 @@
  * @license    MIT License
  */
 
-abstract class Reformed
-{
-	public static $data = array();
-	public static $rules = array();
-	public static $messages = array();
-	public static $remember = false; // persistant data mode
+abstract class Reformed {
 
+	/**
+	 * Data input storage.
+	 *
+	 * @var	$data	array
+	 */
+	public static $data = array();
+	
+	/**
+	 * Rules to govern fields.
+	 *
+	 * @var	$rules	array
+	 */
+	public static $rules = array();
+	
+	/**
+	 * Customized error messages.
+	 *
+	 * @var	$messages	array
+	 */
+	public static $messages = array();
+	
+	/**
+	 * Persistant data mode.
+	 *
+	 * @var	$remember	boolean
+	 */
+	public static $remember = false; // persistant data mode
+	
+	/**
+	 * Scaffolding to construct form.
+	 *
+	 * @var	$scaffold	array
+	 */
+	public static $scaffold = array();
+	
 	/**
 	 * Validates form, sets all input to data array.
 	 *
@@ -99,6 +129,8 @@ abstract class Reformed
 	
 	/**
 	 * Load data from session.
+	 *
+	 * @return	void
 	 */
 	public static function refresh()
 	{
@@ -118,6 +150,8 @@ abstract class Reformed
 	
 	/**
 	 * Save data to session.
+	 *
+	 * @return	void
 	 */
 	public static function remember()
 	{	
@@ -140,6 +174,8 @@ abstract class Reformed
 	
 	/**
 	 * Forget data.
+	 *
+	 * @return	void
 	 */
 	public static function forget()
 	{	
@@ -156,10 +192,12 @@ abstract class Reformed
 	
 	/**
 	 * Flash data.
+	 *
+	 * @return	void
 	 */
 	public static function flash()
 	{
-		static::forget();
+		static::forget(); // alias method
 	}
 	
 	/**
@@ -196,6 +234,7 @@ abstract class Reformed
 	 *
 	 * @param	string	$field
 	 * @param	string	$value
+	 * @return	void
 	 */
 	public static function set($field, $value)
 	{
@@ -234,6 +273,7 @@ abstract class Reformed
 	 *
 	 * @param	string	$field
 	 * @param	string	$option
+	 * @return	boolean
 	 */
 	public static function get_array($field, $option)
 	{
@@ -270,6 +310,7 @@ abstract class Reformed
 	 *
 	 * @param	string	$field
 	 * @param	string	$option
+	 * @return	boolean
 	 */
 	public static function populate_array($field, $option)
 	{
@@ -313,7 +354,7 @@ abstract class Reformed
 	 *
 	 * @param	string	$string
 	 * @param	string	$color
-	 * @return	string/void
+	 * @return	void
 	 */
 	public static function set_alert($string = null, $color = 'red')
 	{
@@ -325,7 +366,7 @@ abstract class Reformed
 	 *
 	 * @param	string	$string
 	 * @param	string	$color
-	 * @return	string/void
+	 * @return	string
 	 */
 	public static function get_alert($string = null, $color = 'red')
 	{
@@ -376,4 +417,40 @@ abstract class Reformed
 			}
 		}
 	}
+	
+	/**
+	 * Build an HTML form based on the scaffold.
+	 *
+	 * @return	string
+	 */
+	public static function form($populate = array())
+	{
+		// convert object to array...
+		if (is_object($populate))
+		{
+			if (is_a($populate, 'Eloquent')) $populate = $populate->to_array();
+		}
+		
+		// build view
+		return View::make('reformed::form')
+			->with('reformed', get_called_class())
+			->with('scaffold', static::$scaffold)
+			->with('populate', $populate)
+			->render();
+	}
+	
+	/**
+	 * Build an HTML table based on input (not abstract, just helpful).
+	 *
+	 * @return	string
+	 */
+	public static function table($data, $headers, $closure)
+	{
+		return View::make('reformed::table')
+			->with('data', $data)
+			->with('headers', $headers)
+			->with('closure', $closure)
+			->render();
+	}
+	
 }
