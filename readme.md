@@ -2,14 +2,6 @@
 
 A model for working w/ forms in LaravelPHP, based on Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  I have found Shawn's form model concept to be extremely helpful and has completely changed how I do forms.  Every form has a model now.  Reformed is my own implementation, refined from my experiences working w/ it over the last several months.
 
-## Install ##
-
-In ``application/bundles.php`` add:
-
-```php
-'reformed' => array('auto' => true),
-```
-
 ## Example ##
 
 When working w/ forms, I always have three parts:  the ``Controller``, the ``View``, and the ``Model``.
@@ -21,15 +13,15 @@ When working w/ forms, I always have three parts:  the ``Controller``, the ``Vie
 
 class Example extends Base_Controller
 {
-	public function get_register()
-	{
-		return View::make('forms/register');
-	}
-	
-	public function post_register()
-	{
-		return RegisterForm::run();
-	}
+    public function get_register()
+    {
+        return View::make('forms/register');
+    }
+    
+    public function post_register()
+    {
+        return RegisterForm::run();
+    }
 }
 ```
 
@@ -56,43 +48,43 @@ Notice the ``alert()`` method, which prints form responses for the user to see, 
 
 class RegisterForm extends Reformed
 {
-	// field rules
-	public static $rules = array(
-		'name' => 'required',
-	);
-	
-	// persistant data mode
-	public static $remember = false;
-	
-	// process the form
-	public static function run()
-	{
-		// if passes...
-		if (static::is_valid())
-		{
-			// test...
-			if ($name === 'Foo Bar')
-			{
-				// save
-				$record = new Registration();
-				$record->name = static::get('name');
-				$record->save();
-			}
-			else
-			{
-				// alert
-				static::set_alert('Sorry, only Foo Bar is allowed to register.', 'red');
-				
-				// redirect
-				return Redirect::to(URL::current())->with_input();
-			}
-		}
-		else
-		{
-			// redirect
-			return Redirect::to(URL::current())->with_input(); // note with_errors() isn't needed
-		}
-	}
+    // field rules
+    public static $rules = array(
+        'name' => 'required',
+    );
+    
+    // persistant data mode
+    public static $remember = false;
+    
+    // process the form
+    public static function run()
+    {
+        // if passes...
+        if (static::is_valid())
+        {
+            // test...
+            if ($name === 'Foo Bar')
+            {
+                // save
+                $record = new Registration();
+                $record->name = static::get('name');
+                $record->save();
+            }
+            else
+            {
+                // alert
+                static::set_alert('Sorry, only Foo Bar is allowed to register.', 'red');
+                
+                // redirect
+                return Redirect::to(URL::current())->with_input();
+            }
+        }
+        else
+        {
+            // redirect
+            return Redirect::to(URL::current())->with_input(); // note with_errors() isn't needed
+        }
+    }
 }
 ```
 
