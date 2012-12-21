@@ -159,9 +159,10 @@ abstract class Reformed {
     /**
      * Clear data array from session.
      *
+     * @param   boolean $layover
      * @return  void
      */
-    public static function clear()
+    public static function clear($layover = false)
     {   
         // forget
         Session::forget(get_called_class());
@@ -170,8 +171,11 @@ abstract class Reformed {
         // we oftentimes will need the data to persist one last pageload
         // for purposes of a confirmation page.
         
-        // flash
-        Session::flash(get_called_class(), serialize(static::$data));
+        if ($layover)
+        {
+            // flash
+            static::flash();
+        }
     }
     
     /**
@@ -181,7 +185,7 @@ abstract class Reformed {
      */
     public static function flash()
     {
-        static::clear();
+        Session::flash(get_called_class(), serialize(static::$data));
     }
 
     /**
@@ -199,9 +203,9 @@ abstract class Reformed {
      *
      * @return  void
      */
-    public static function forget()
+    public static function forget($layover = false)
     {
-        static::clear();
+        static::clear($layover);
     }
     
     /**
