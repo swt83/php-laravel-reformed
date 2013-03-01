@@ -299,13 +299,23 @@ abstract class Reformed {
      * Get array value from data array.
      *
      * @param   string  $field
+     * @param   string  $default
      * @return  boolean
      */
-    public static function get_array_value($field)
-    {    
+    public static function get_array_value($field, $default)
+    {
+        $pass = false;
         $value = static::get($field);
-        if (is_array($value)) return $value[0];
-        else return false;
+        if (is_array($value))
+        {
+            if (isset($value[0]))
+            {
+                $pass = true;
+                $value = $value[0];
+            }
+        }
+
+        return $pass ? $value : $default;
     }
     
     /**
@@ -343,13 +353,23 @@ abstract class Reformed {
      * Get array value from data array.
      *
      * @param   string  $field
+     * @param   string  $default
      * @return  boolean
      */
     public static function populate_array_value($field)
     {    
+        $pass = false;
         $value = static::populate($field);
-        if (is_array($value)) return $value[0];
-        else return false;
+        if (is_array($value))
+        {
+            if (isset($value[0]))
+            {
+                $pass = true;
+                $value = $value[0];
+            }
+        }
+
+        return $pass ? $value : $default;
     }
     
     /**
