@@ -277,7 +277,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get field value from data array.
+     * Get true/false for array value from data array.
      *
      * @param   string  $field
      * @param   string  $option
@@ -294,6 +294,19 @@ abstract class Reformed {
         // check in_array
         return in_array($option, $input) ? true : false;
     }
+
+    /**
+     * Get array value from data array.
+     *
+     * @param   string  $field
+     * @return  boolean
+     */
+    public static function get_array_value($field)
+    {    
+        $value = static::get($field);
+        if (is_array($value)) return $value[0];
+        else return false;
+    }
     
     /**
      * Get field value from input array.
@@ -308,7 +321,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get field value from input array.
+     * Get true/false for array value from input array.
      *
      * @param   string  $field
      * @param   string  $option
@@ -324,6 +337,19 @@ abstract class Reformed {
         
         // check in_array
         return in_array($option, $input) ? true : false;
+    }
+
+    /**
+     * Get array value from data array.
+     *
+     * @param   string  $field
+     * @return  boolean
+     */
+    public static function populate_array_value($field)
+    {    
+        $value = static::populate($field);
+        if (is_array($value)) return $value[0];
+        else return false;
     }
     
     /**
