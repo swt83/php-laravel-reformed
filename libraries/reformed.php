@@ -302,7 +302,7 @@ abstract class Reformed {
      * @param   string  $default
      * @return  boolean
      */
-    public static function get_array_value($field, $default)
+    public static function get_array_value($field, $default = null)
     {
         $pass = false;
         $value = static::get($field);
@@ -356,7 +356,7 @@ abstract class Reformed {
      * @param   string  $default
      * @return  boolean
      */
-    public static function populate_array_value($field)
+    public static function populate_array_value($field, $default = null)
     {    
         $pass = false;
         $value = static::populate($field);
