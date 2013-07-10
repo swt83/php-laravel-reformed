@@ -12,7 +12,7 @@
 abstract class Reformed {
 
     /**
-     * Data input storage.
+     * Data storage.
      *
      * @var $data   array
      */
@@ -40,7 +40,7 @@ abstract class Reformed {
     public static $remember = false;
     
     /**
-     * Validates form, sets all input to data array.
+     * Validates form, saves input to object.
      *
      * @param   array   $fields
      * @return  bool
@@ -72,6 +72,9 @@ abstract class Reformed {
             $rules = static::$rules;
         }
         
+        // If we have rules provided, we'll validate the form and
+        // save any possible errors to a session variable.
+
         // if rules...
         if (!empty($rules))
         {
@@ -89,10 +92,6 @@ abstract class Reformed {
             }
             else
             {
-                // We're going to store errors in our own session so that
-                // the get_alert() method can retreive them automatically
-                // later.  We don't need to use with_errors() on redirects.
-                
                 // flash errors
                 Session::flash('errors_'.get_called_class(), $validation->errors);
             
@@ -118,7 +117,7 @@ abstract class Reformed {
     }
 
     /**
-     * Load session and store in object (only directly used w/out is_valid() method).
+     * Load session data and store in object.
      *
      * @return  void
      */
@@ -133,7 +132,7 @@ abstract class Reformed {
     }
     
     /**
-     * Take object data and store in session.
+     * Load object data and store in session.
      *
      * @return  void
      */
@@ -157,7 +156,7 @@ abstract class Reformed {
     }
     
     /**
-     * Save object data, in session, for single pageload.
+     * Load object data and store in session for single pageload.
      *
      * @return  void
      */
@@ -182,7 +181,7 @@ abstract class Reformed {
     }
     
     /**
-     * Fill data array w/ values.
+     * Fill object data w/ provided values.
      *
      * @param   array   $input
      */
@@ -201,7 +200,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get all field values as array.
+     * Return array of all object data.
      *
      * @return  array
      */
@@ -238,7 +237,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get field value from data array.
+     * Get field value.
      *
      * @param   string  $field
      * @param   string  $default
@@ -250,7 +249,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get true/false for array value from data array.
+     * Get true/false for array field value.
      *
      * @param   string  $field
      * @param   string  $option
@@ -269,7 +268,7 @@ abstract class Reformed {
     }
 
     /**
-     * Get array value from data array.
+     * Get array field value.
      *
      * @param   string  $field
      * @param   string  $default
@@ -292,7 +291,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get field value from input array.
+     * Get field value from input (for use in GET context).
      *
      * @param   string  $field
      * @param   string  $default
@@ -304,7 +303,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get true/false for array value from input array.
+     * Get true/false for array field value from input (for use in GET context).
      *
      * @param   string  $field
      * @param   string  $option
@@ -323,7 +322,7 @@ abstract class Reformed {
     }
 
     /**
-     * Get array value from data array.
+     * Get array field value from input (for use in GET context).
      *
      * @param   string  $field
      * @param   string  $default
@@ -346,7 +345,7 @@ abstract class Reformed {
     }
     
     /**
-     * Get field error from validation object.
+     * Get field error.
      *
      * @param   string  $field
      * @param   string  $default
@@ -371,7 +370,7 @@ abstract class Reformed {
     }
     
     /**
-     * Set alert box value.
+     * Set alert box.
      *
      * @param   string  $string
      * @param   string  $color
@@ -383,7 +382,7 @@ abstract class Reformed {
     }
     
     /**
-     * Print alert box (and override current value).
+     * Print alert box.
      *
      * @param   string  $string
      * @param   string  $color
