@@ -82,7 +82,7 @@ abstract class Reformed {
             if ($validation->passes())
             {
                 // remember
-                static::push();
+                static::remember();
                 
                 // return
                 return true;
@@ -108,7 +108,7 @@ abstract class Reformed {
     }
     
     /**
-     * Capture input array and store in data array.
+     * Capture input and store in object.
      *
      * @return  void
      */
@@ -118,94 +118,67 @@ abstract class Reformed {
     }
 
     /**
-     * Load data array by pulling from session.
+     * Load session and store in object (only directly used w/out is_valid() method).
      *
      * @return  void
      */
-    public static function pull()
+    public static function recall()
     {
-        // if session...
+        // if session exists...
         if (Session::has(get_called_class()))
         {
-            // pull data
-            static::$data = unserialize(Session::get(get_called_class()));
+            // unpack from session
+            static::$data = unserialize(Crypter::decrypt(Session::get(get_called_class())));
         }
     }
     
     /**
-     * Save data array by pushing to session.
-     *
-     * @return  void
-     */
-    public static function push()
-    {   
-        // if remember mode...
-        if (static::$remember)
-        {   
-            // grab existing values
-            $existing = static::all();
-        
-            // pull previous values
-            static::pull();
-            
-            // merge together
-            static::fill($existing);
-            
-            // push merged values
-            Session::put(get_called_class(), serialize(static::$data));
-        }
-    }
-    
-    /**
-     * Clear data array from session.
-     *
-     * @param   boolean $layover
-     * @return  void
-     */
-    public static function clear($layover = false)
-    {   
-        // forget
-        Session::forget(get_called_class());
-        
-        // Even though we're clearing the session to forget the data,
-        // we oftentimes will need the data to persist one last pageload
-        // for purposes of a confirmation page.
-        
-        if ($layover)
-        {
-            // flash
-            static::flash();
-        }
-    }
-    
-    /**
-     * Flash data array to session for a single pageload.
-     *
-     * @return  void
-     */
-    public static function flash()
-    {
-        Session::flash(get_called_class(), serialize(static::$data));
-    }
-
-    /**
-     * Alias method to push to session.
+     * Take object data and store in session.
      *
      * @return  void
      */
     public static function remember()
-    {
-        static::push();
-    }
+    {   
+        // if remember mode...
+        if (static::$remember)
+        {   
+            // grab current values
+            $existing = static::all();
+        
+            // recall previous values
+            static::recall();
+            
+            // merge previous and current
+            static::fill($existing);
 
+            // save to session
+            Session::put(get_called_class(), Crypter::encrypt(serialize(static::$data)));
+        }
+    }
+    
     /**
-     * Alias method to clear the session.
+     * Save object data, in session, for single pageload.
      *
      * @return  void
      */
-    public static function forget($layover = false)
+    public static function flash()
+    {   
+        // forget
+        static::forget();
+        
+        // flash
+        Session::flash(get_called_class(), Crypter::encrypt(serialize(static::$data)));
+    }
+    
+    /**
+     * Delete the session data.
+     *
+     * @return  void
+     */
+    public static function forget()
     {
-        static::clear($layover);
+        // erase session
+        Session::forget(get_called_class());
     }
     
     /**
@@ -257,8 +230,8 @@ abstract class Reformed {
      */
     public static function has($field)
     {
-        // pull
-        if (empty(static::$data)) static::pull();
+        // recall
+        if (empty(static::$data)) static::recall();
     
         // return
         return isset(static::$data[$field]) and !empty(static::$data[$field]);
