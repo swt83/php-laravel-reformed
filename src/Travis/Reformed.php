@@ -1,13 +1,6 @@
 <?php
 
-/**
- * A model to facilitate working w/ forms in LaravelPHP.
- *
- * @package    Reformed
- * @author     Scott Travis <scott.w.travis@gmail.com>
- * @link       http://github.com/swt83/laravel-reformed
- * @license    MIT License
- */
+namespace Travis;
 
 abstract class Reformed {
 
@@ -17,28 +10,28 @@ abstract class Reformed {
      * @var $data   array
      */
     public static $data = array();
-    
+
     /**
      * Rules to govern fields.
      *
      * @var $rules  array
      */
     public static $rules = array();
-    
+
     /**
      * Customized error messages.
      *
      * @var $messages   array
      */
     public static $messages = array();
-    
+
     /**
      * Persistant data mode.
      *
      * @var $remember   boolean
      */
     public static $remember = false;
-    
+
     /**
      * Validates form, saves input to object.
      *
@@ -49,7 +42,7 @@ abstract class Reformed {
     {
         // capture input
         static::capture();
-        
+
         // The user may only want to validate certain fields,
         // in which case we will only load the corresponding rules.
 
@@ -71,7 +64,7 @@ abstract class Reformed {
             // use all rules
             $rules = static::$rules;
         }
-        
+
         // If we have rules provided, we'll validate the form and
         // save any possible errors to a session variable.
 
@@ -79,22 +72,22 @@ abstract class Reformed {
         if (!empty($rules))
         {
             // validate input
-            $validation = Validator::make(static::all(), $rules, static::$messages);
-            
+            $validation = \Validator::make(static::all(), $rules, static::$messages);
+
             // if passes...
             if ($validation->passes())
             {
                 // remember
                 static::remember();
-                
+
                 // return
                 return true;
             }
             else
             {
                 // flash errors
-                Session::flash('errors_'.get_called_class(), $validation->errors);
-            
+                \Session::flash('errors_'.get_called_class(), $validation->messages());
+
                 // return
                 return false;
             }
@@ -105,7 +98,7 @@ abstract class Reformed {
             return true;
         }
     }
-    
+
     /**
      * Capture input and store in object.
      *
@@ -113,7 +106,7 @@ abstract class Reformed {
      */
     public static function capture()
     {
-        static::fill(Input::all());
+        static::fill(\Input::all());
     }
 
     /**
@@ -124,51 +117,51 @@ abstract class Reformed {
     public static function recall()
     {
         // if session exists...
-        if (Session::has(get_called_class()))
+        if (\Session::has(get_called_class()))
         {
             // unpack from session
-            static::$data = unserialize(Crypter::decrypt(Session::get(get_called_class())));
+            static::$data = unserialize(\Crypter::decrypt(\Session::get(get_called_class())));
         }
     }
-    
+
     /**
      * Load object data and store in session.
      *
      * @return  void
      */
     public static function remember()
-    {   
+    {
         // if remember mode...
         if (static::$remember)
-        {   
+        {
             // grab current values
             $existing = static::all();
-        
+
             // recall previous values
             static::recall();
-            
+
             // merge previous and current
             static::fill($existing);
 
             // save to session
-            Session::put(get_called_class(), Crypter::encrypt(serialize(static::$data)));
+            \Session::put(get_called_class(), \Crypter::encrypt(serialize(static::$data)));
         }
     }
-    
+
     /**
      * Load object data and store in session for single pageload.
      *
      * @return  void
      */
     public static function flash()
-    {   
+    {
         // forget
         static::forget();
-        
+
         // flash
-        Session::flash(get_called_class(), Crypter::encrypt(serialize(static::$data)));
+        \Session::flash(get_called_class(), \Crypter::encrypt(serialize(static::$data)));
     }
-    
+
     /**
      * Delete the session data.
      *
@@ -177,9 +170,9 @@ abstract class Reformed {
     public static function forget()
     {
         // erase session
-        Session::forget(get_called_class());
+        \Session::forget(get_called_class());
     }
-    
+
     /**
      * Fill object data w/ provided values.
      *
@@ -198,17 +191,17 @@ abstract class Reformed {
             }
         }
     }
-    
+
     /**
      * Return array of all object data.
      *
      * @return  array
      */
     public static function all()
-    {   
+    {
         return static::$data;
     }
-    
+
     /**
      * Set field value.
      *
@@ -220,7 +213,7 @@ abstract class Reformed {
     {
         static::$data[$field] = $value;
     }
-    
+
     /**
      * Check if field value exists.
      *
@@ -231,11 +224,11 @@ abstract class Reformed {
     {
         // recall
         if (empty(static::$data)) static::recall();
-    
+
         // return
         return isset(static::$data[$field]) and !empty(static::$data[$field]);
     }
-    
+
     /**
      * Get field value.
      *
@@ -247,7 +240,7 @@ abstract class Reformed {
     {
         return static::has($field) ? static::$data[$field] : $default;
     }
-    
+
     /**
      * Get true/false for array field value.
      *
@@ -256,13 +249,13 @@ abstract class Reformed {
      * @return  boolean
      */
     public static function get_array($field, $option)
-    {    
+    {
         // get input value
         $input = static::get($field, array());
-        
+
         // catch blank
         if ($input === '') $input = array();
-        
+
         // check in_array
         return in_array($option, $input) ? true : false;
     }
@@ -289,7 +282,7 @@ abstract class Reformed {
 
         return $pass ? $value : $default;
     }
-    
+
     /**
      * Get field value from input (for use in GET context).
      *
@@ -299,9 +292,9 @@ abstract class Reformed {
      */
     public static function populate($field, $default = null)
     {
-        return Input::old($field, static::get($field, $default));
+        return \Input::old($field, static::get($field, $default));
     }
-    
+
     /**
      * Get true/false for array field value from input (for use in GET context).
      *
@@ -312,11 +305,11 @@ abstract class Reformed {
     public static function populate_array($field, $option)
     {
         // get input value
-        $input = Input::old($field, static::get($field, array()));
-        
+        $input = \Input::old($field, static::get($field, array()));
+
         // catch blank
         if (!is_array($input)) $input = array();
-        
+
         // check in_array
         return in_array($option, $input) ? true : false;
     }
@@ -329,7 +322,7 @@ abstract class Reformed {
      * @return  boolean
      */
     public static function populate_array_value($field, $default = null)
-    {    
+    {
         $pass = false;
         $value = static::populate($field);
         if (is_array($value))
@@ -343,7 +336,7 @@ abstract class Reformed {
 
         return $pass ? $value : $default;
     }
-    
+
     /**
      * Get field error.
      *
@@ -354,8 +347,8 @@ abstract class Reformed {
     public static function error($field, $default = null)
     {
         // load session
-        $errors = Session::get('errors_'.get_called_class());
-        
+        $errors = \Session::get('errors_'.get_called_class());
+
         // if errors...
         if ($errors)
         {
@@ -368,7 +361,7 @@ abstract class Reformed {
             return $default;
         }
     }
-    
+
     /**
      * Set alert box.
      *
@@ -378,9 +371,9 @@ abstract class Reformed {
      */
     public static function set_alert($string = null, $color = 'red')
     {
-        Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
+        \Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
     }
-    
+
     /**
      * Print alert box.
      *
@@ -393,28 +386,21 @@ abstract class Reformed {
         // Regardless of what alert may have been set,
         // this method will return the list of errors if
         // there were any.
-        
+
         // load errors
-        $errors = Session::get('errors_'.get_called_class());
-        
+        $errors = \Session::get('errors_'.get_called_class());
+
         // if errors...
         if ($errors)
         {
-            // build friendly array
-            $clean_errors = array();
-            foreach ($errors->messages as $error)
-            {
-                $clean_errors[] = $error[0];
-            }
-            
             // return
-            return '<div class="alert red"><p>Form Errors:</p>'.HTML::ul($clean_errors).'</div>';
+            return '<div class="alert red"><p>Form Errors:</p>'.\HTML::ul($errors->all()).'</div>';
         }
         else
         {
             // load alert
-            $alert = Session::get('alert_'.get_called_class());
-            
+            $alert = \Session::get('alert_'.get_called_class());
+
             // if NOT found...
             if (!$alert)
             {
@@ -428,7 +414,7 @@ abstract class Reformed {
                     );
                 }
             }
-            
+
             // if alert...
             if ($alert)
             {
@@ -437,5 +423,5 @@ abstract class Reformed {
             }
         }
     }
-    
+
 }

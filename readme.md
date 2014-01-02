@@ -1,12 +1,18 @@
-# Reformed for LaravelPHP #
+# Reformed
 
-A model for working w/ forms in LaravelPHP, based on Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).  I have found Shawn's form model concept to be extremely helpful and has completely changed how I do forms.  Every form has a model now.  Reformed is my own implementation, refined from my experiences working w/ it over the last several months.
+A Laravel PHP library for working w/ forms.
 
-## Example ##
+Based on Shawn McCool's [Form Base Model](https://github.com/ShawnMcCool/laravel-form-base-model).
+
+## Install
+
+Normal install via Composer.
+
+## Example
 
 When working w/ forms, I always have three parts:  the ``Controller``, the ``View``, and the ``Model``.
 
-### The Controller ###
+### The Controller
 
 ```php
 <?php
@@ -17,7 +23,7 @@ class Example extends Base_Controller
     {
         return View::make('forms/register');
     }
-    
+
     public function post_register()
     {
         return RegisterForm::run();
@@ -27,7 +33,7 @@ class Example extends Base_Controller
 
 Notice the ``run()`` method.  This could be named anything you want, but the important thing is to process the form directly from the model.  This keeps things nice and tidy and contained in a single place.
 
-### The View ###
+### The View
 
 ```php
 <?=RegisterForm::get_alert();?>
@@ -41,7 +47,7 @@ Notice the ``run()`` method.  This could be named anything you want, but the imp
 
 Notice the ``alert()`` method, which prints form responses for the user to see, such as error and success messages.  Also notice the ``populate()`` method, which loads the best value for that field.  Finally, notice the ``error()`` method, which shows any error that field may have had, if there was any.
 
-### The Model ###
+### The Model
 
 ```php
 <?php
@@ -52,10 +58,10 @@ class RegisterForm extends Reformed
     public static $rules = array(
         'name' => 'required',
     );
-    
+
     // persistant data mode
     public static $remember = false;
-    
+
     // process the form
     public static function run()
     {
@@ -74,7 +80,7 @@ class RegisterForm extends Reformed
             {
                 // alert
                 static::set_alert('Sorry, only Foo Bar is allowed to register.', 'red');
-                
+
                 // redirect
                 return Redirect::to(URL::current())->with_input();
             }
