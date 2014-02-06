@@ -120,7 +120,7 @@ abstract class Reformed {
         if (\Session::has(get_called_class()))
         {
             // unpack from session
-            static::$data = unserialize(\Crypter::decrypt(\Session::get(get_called_class())));
+            static::$data = unserialize(\Crypt::decrypt(\Session::get(get_called_class())));
         }
     }
 
@@ -144,7 +144,7 @@ abstract class Reformed {
             static::fill($existing);
 
             // save to session
-            \Session::put(get_called_class(), \Crypter::encrypt(serialize(static::$data)));
+            \Session::put(get_called_class(), \Crypt::encrypt(serialize(static::$data)));
         }
     }
 
@@ -159,7 +159,7 @@ abstract class Reformed {
         static::forget();
 
         // flash
-        \Session::flash(get_called_class(), \Crypter::encrypt(serialize(static::$data)));
+        \Session::flash(get_called_class(), \Crypt::encrypt(serialize(static::$data)));
     }
 
     /**
