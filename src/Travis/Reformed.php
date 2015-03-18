@@ -371,7 +371,7 @@ abstract class Reformed {
      */
     public static function set_alert($string = null, $color = 'red')
     {
-        \Session::flash('alert_'.get_called_class(), array('string' => $string, 'color' => $color));
+        \Session::flash('alert_'.get_called_class(), array('msg' => $string, 'level' => $color));
     }
 
     /**
@@ -383,9 +383,11 @@ abstract class Reformed {
      */
     public static function get_alert($string = null, $color = 'red')
     {
-        // Regardless of what alert may have been set,
-        // this method will return the list of errors if
-        // there were any.
+        // payload
+        $payload = array(
+            'msg' => null,
+            'level' => null,
+        );
 
         // load errors
         $errors = \Session::get('errors_'.get_called_class());
@@ -393,8 +395,9 @@ abstract class Reformed {
         // if errors...
         if ($errors)
         {
-            // return
-            return '<div class="alert red"><p>Form Errors:</p>'.\HTML::ul($errors->all()).'</div>';
+            // set
+            $payload['msg'] = '<p>Form Errors:</p>'.\HTML::ul($errors->all());
+            $payload['level'] = 'red';
         }
         else
         {
@@ -408,20 +411,24 @@ abstract class Reformed {
                 if ($string)
                 {
                     // set manual values
-                    $alert = array(
-                        'color' => $color,
-                        'string' => $string,
+                    $payload = array(
+                        'msg' => $string,
+                        'level' => $color,
                     );
                 }
             }
 
-            // if alert...
+            // if found...
             if ($alert)
             {
-                // return
-                return '<div class="alert '.$alert['color'].'"><p>'.$alert['string'].'</p></div>';
+                // set
+                $payload['msg'] = '<p>'.$alert['msg'].'</p>';
+                $payload['level'] = $alert['level'];
             }
         }
+
+        // return
+        return $payload;
     }
 
 }

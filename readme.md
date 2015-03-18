@@ -36,16 +36,20 @@ Notice the ``run()`` method.  This could be named anything you want, but the imp
 ### The View
 
 ```php
-<?=RegisterForm::get_alert();?>
-<?=Form::open();?>
-<?=Form::label('name', 'Name*');?>
-<?=Form::text('name', RegisterForm::populate('name'));?>
-<?=RegisterForm::error('name');?>
-<?=Form::submit('Submit');?>
-<?=Form::close();?>
+<?php
+
+$alert = RegisterForm::get_alert(); // array with 'msg' and 'level', for printing
+if ($alert) echo '<div class="'.$alert['level'].'">'.$alert['msg'].'</div>';
+
+echo Form::open();
+echo Form::label('name', 'Name *');
+echo Form::text('name', RegisterForm::populate('name'));
+echo RegisterForm::error('name');
+echo Form::submit('Submit');
+echo Form::close();
 ```
 
-Notice the ``alert()`` method, which prints form responses for the user to see, such as error and success messages.  Also notice the ``populate()`` method, which loads the best value for that field.  Finally, notice the ``error()`` method, which shows any error that field may have had, if there was any.
+Notice the ``get_alert()`` method, which returns form errors for the user to see, or success messages.  Also notice the ``populate()`` method, which loads the best value for that field.  Finally, notice the ``error()`` method, which shows any error that field may have had.
 
 ### The Model
 
