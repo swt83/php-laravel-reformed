@@ -39,7 +39,7 @@ Notice the ``run()`` method.  This could be named anything you want, but the imp
 <?php
 
 $alert = RegisterForm::get_alert(); // array with 'msg' and 'level', for printing
-if ($alert) echo '<div class="'.$alert['level'].'">'.$alert['msg'].'</div>';
+if ($alert['msg']) echo '<div class="'.$alert['level'].'">'.$alert['msg'].'</div>';
 
 echo Form::open();
 echo Form::label('name', 'Name *');
