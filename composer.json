@@ -1,7 +1,6 @@
 {
     "name": "travis/reformed",
     "description": "A Laravel PHP library for working w/ forms.",
-    "homepage": "https://github.com/swt83/php-laravel-reformed",
     "license": "MIT",
     "authors": [
         {
@@ -10,8 +9,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "illuminate/support": "4.1.*"
+        "php": ">=5.3.0"
     },
     "autoload": {
         "psr-0": {
