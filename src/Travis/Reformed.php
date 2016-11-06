@@ -287,7 +287,7 @@ abstract class Reformed
      */
     public static function set_alert($string = null, $level = null)
     {
-        \Session::flash('alert_'.get_called_class(), ['msg' => $string, 'level' => $level);
+        \Session::flash('alert_'.get_called_class(), ['msg' => $string, 'level' => $level]);
     }
 
     /**
