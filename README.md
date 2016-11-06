@@ -28,6 +28,13 @@ class ContactForm extends Reformed
 		// if validates...
 		if (static::is_valid())
 		{
+			// capture
+			$first = static::get('first');
+			$last = static::get('last');
+			$email = static::get('email');
+			$subject = static::get('subject');
+			$message = static::get('message');
+
 			// do something
 
 			// set alert
