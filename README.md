@@ -41,7 +41,7 @@ class ContactForm extends Reformed
 			static::set_alert('Message sent.', 'green');
 
 			// return
-			return \Redirect::to(\URL::current())->withInput();
+			return \Redirect::to(\URL::current()); // do not return input, clear the fields
 		}
 
 		// return w/ errors
