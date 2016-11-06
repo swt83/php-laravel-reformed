@@ -2,28 +2,28 @@
 
 namespace Travis;
 
-abstract class Reformed {
-
+abstract class Reformed
+{
     /**
      * Data storage.
      *
      * @var $data   array
      */
-    public static $data = array();
+    public static $data = [];
 
     /**
      * Rules to govern fields.
      *
      * @var $rules  array
      */
-    public static $rules = array();
+    public static $rules = [];
 
     /**
      * Customized error messages.
      *
      * @var $messages   array
      */
-    public static $messages = array();
+    public static $messages = [];
 
     /**
      * Persistant data mode.
@@ -230,7 +230,7 @@ abstract class Reformed {
     }
 
     /**
-     * Get field value.
+     * Get field value from stored value.
      *
      * @param   string  $field
      * @param   string  $default
@@ -242,49 +242,7 @@ abstract class Reformed {
     }
 
     /**
-     * Get true/false for array field value.
-     *
-     * @param   string  $field
-     * @param   string  $option
-     * @return  boolean
-     */
-    public static function get_array($field, $option)
-    {
-        // get input value
-        $input = static::get($field, array());
-
-        // catch blank
-        if ($input === '') $input = array();
-
-        // check in_array
-        return in_array($option, $input) ? true : false;
-    }
-
-    /**
-     * Get array field value.
-     *
-     * @param   string  $field
-     * @param   string  $default
-     * @return  boolean
-     */
-    public static function get_array_value($field, $default = null)
-    {
-        $pass = false;
-        $value = static::get($field);
-        if (is_array($value))
-        {
-            if (isset($value[0]))
-            {
-                $pass = true;
-                $value = $value[0];
-            }
-        }
-
-        return $pass ? $value : $default;
-    }
-
-    /**
-     * Get field value from input (for use in GET context).
+     * Get field value from input.
      *
      * @param   string  $field
      * @param   string  $default
@@ -296,49 +254,7 @@ abstract class Reformed {
     }
 
     /**
-     * Get true/false for array field value from input (for use in GET context).
-     *
-     * @param   string  $field
-     * @param   string  $option
-     * @return  boolean
-     */
-    public static function populate_array($field, $option)
-    {
-        // get input value
-        $input = \Input::old($field, static::get($field, array()));
-
-        // catch blank
-        if (!is_array($input)) $input = array();
-
-        // check in_array
-        return in_array($option, $input) ? true : false;
-    }
-
-    /**
-     * Get array field value from input (for use in GET context).
-     *
-     * @param   string  $field
-     * @param   string  $default
-     * @return  boolean
-     */
-    public static function populate_array_value($field, $default = null)
-    {
-        $pass = false;
-        $value = static::populate($field);
-        if (is_array($value))
-        {
-            if (isset($value[0]))
-            {
-                $pass = true;
-                $value = $value[0];
-            }
-        }
-
-        return $pass ? $value : $default;
-    }
-
-    /**
-     * Get field error.
+     * Get error for specific field.
      *
      * @param   string  $field
      * @param   string  $default
@@ -363,31 +279,29 @@ abstract class Reformed {
     }
 
     /**
-     * Set alert box.
+     * Set alert message.
      *
      * @param   string  $string
-     * @param   string  $color
+     * @param   string  $level
      * @return  void
      */
-    public static function set_alert($string = null, $color = 'red')
+    public static function set_alert($string = null, $level = null)
     {
-        \Session::flash('alert_'.get_called_class(), array('msg' => $string, 'level' => $color));
+        \Session::flash('alert_'.get_called_class(), ['msg' => $string, 'level' => $level);
     }
 
     /**
-     * Print alert box.
+     * Get alert message.
      *
-     * @param   string  $string
-     * @param   string  $color
-     * @return  string
+     * @return  array
      */
-    public static function get_alert($string = null, $color = 'red')
+    public static function get_alert()
     {
         // payload
-        $payload = array(
+        $payload = [
             'msg' => null,
             'level' => null,
-        );
+        ];
 
         // load errors
         $errors = \Session::get('errors_'.get_called_class());
@@ -396,7 +310,7 @@ abstract class Reformed {
         if ($errors)
         {
             // set
-            $payload['msg'] = '<p>Form Errors:</p>'.\HTML::ul($errors->all());
+            $payload['msg'] = $errors->all(); // will return array
             $payload['level'] = 'red';
         }
         else
@@ -404,25 +318,13 @@ abstract class Reformed {
             // load alert
             $alert = \Session::get('alert_'.get_called_class());
 
-            // if NOT found...
-            if (!$alert)
-            {
-                // if override...
-                if ($string)
-                {
-                    // set manual values
-                    $payload = array(
-                        'msg' => $string,
-                        'level' => $color,
-                    );
-                }
-            }
-
             // if found...
             if ($alert)
             {
                 // set
-                $payload['msg'] = '<p>'.$alert['msg'].'</p>';
+                $payload['msg'] = [
+                    $alert['msg']
+                ];
                 $payload['level'] = $alert['level'];
             }
         }
@@ -430,5 +332,4 @@ abstract class Reformed {
         // return
         return $payload;
     }
-
 }
