@@ -1,6 +1,6 @@
 {
     "name": "travis/reformed",
-    "description": "A Laravel PHP library for working w/ forms.",
+    "description": "A Laravel PHP form model, assisting in the PRG form pattern.",
     "license": "MIT",
     "authors": [
         {

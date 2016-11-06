@@ -1,6 +1,6 @@
 # Reformed
 
-A Laravel PHP library for working w/ forms.
+A Laravel PHP form model, assisting in the PRG form pattern.
 
 ## Install
 
