@@ -71,6 +71,12 @@ abstract class Reformed
         // if rules...
         if (!empty($rules))
         {
+            // amend rules to always add "nullable"
+            foreach ($rules as $key => $value)
+            {
+                $rules[$key] .= '|nullable';
+            }
+
             // validate input
             $validation = \Validator::make(static::all(), $rules, static::$messages);
 
