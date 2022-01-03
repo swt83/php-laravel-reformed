@@ -305,7 +305,7 @@ abstract class Reformed
     {
         // payload
         $payload = [
-            'msg' => null,
+            'msg' => [],
             'level' => null,
         ];
 
